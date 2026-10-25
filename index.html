@@ -1,0 +1,1722 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="skysight 专业天气服务产品概念演示">
+<title>skysight · 专业天气工作台</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+<style>
+:root {
+  --bg-primary: #FAFBFC;
+  --bg-secondary: #FFFFFF;
+  --border: #E5E7EB;
+  --border-hover: #D1D5DB;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-light: #DBEAFE;
+  --warm: #F59E0B;
+  --warm-light: #FEF3C7;
+  --success: #059669;
+  --success-light: #D1FAE5;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Text', 'PingFang SC', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, select { font: inherit; color: inherit; border: 0; background: none; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+
+.icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[hidden] { display: none !important; }
+
+/* === Sidebar === */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 260px;
+  background: var(--navy);
+  border-right: 1px solid var(--border);
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 48px;
+  padding-left: 8px;
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+}
+
+.brand-name {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--text);
+}
+
+.brand-name b { color: var(--accent-glow); }
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 32px;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+  font-weight: 500;
+}
+
+.nav-button:hover {
+  background: var(--slate);
+  color: var(--text);
+}
+
+.nav-button[aria-current="page"] {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.count {
+  margin-left: auto;
+  font-size: 12px;
+  background: var(--slate-soft);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.nav-button[aria-current="page"] .count {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.member-card {
+  margin-top: auto;
+  background: linear-gradient(145deg, #1A2536, #243142);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.member-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15), transparent);
+  pointer-events: none;
+}
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-glow);
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.member-card h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-top: 12px;
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+}
+
+.member-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.member-button {
+  margin-top: 18px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+  color: white;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+.member-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* === Main === */
+.main {
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+.topbar {
+  height: 80px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  background: var(--navy);
+  backdrop-filter: blur(20px);
+}
+
+.breadcrumb {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: var(--slate);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.demo-badge::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--accent-glow);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: all 0.2s;
+  color: var(--text-muted);
+}
+
+.icon-button:hover {
+  background: var(--slate);
+  color: var(--text);
+}
+
+/* === Content === */
+.content {
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 48px;
+}
+
+.page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+  gap: 32px;
+}
+
+.page-title h1 {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-title p {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  line-height: 1.7;
+}
+
+.date-stamp {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.date-stamp strong {
+  font-size: 56px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.date-stamp span {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  line-height: 1.8;
+  font-weight: 600;
+}
+
+.segment {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  background: var(--slate);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.segment button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.segment button[aria-pressed="true"] {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+}
+
+.button:hover:not(:disabled) {
+  background: var(--slate);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.button.primary {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.button.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* === Form Grid === */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 0.6fr 0.6fr;
+  gap: 20px;
+  padding: 28px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 28px;
+}
+
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.field select,
+.field input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--slate);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.field select:focus,
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* === Weather Map === */
+.weather-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 28px;
+  margin-bottom: 28px;
+}
+
+.weather-map {
+  position: relative;
+  background: linear-gradient(135deg, #1A2536 0%, #0F1829 100%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 440px;
+  padding: 32px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.map-head {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.map-head h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 8px;
+  letter-spacing: -0.5px;
+}
+
+.favorite {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--slate);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all 0.2s;
+  color: var(--text-muted);
+}
+
+.favorite:hover {
+  background: var(--slate-soft);
+  color: var(--text);
+}
+
+.favorite[aria-pressed="true"] {
+  background: linear-gradient(135deg, var(--warm) 0%, #FCD34D 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.map-layers {
+  position: absolute;
+  top: 140px;
+  left: 32px;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  background: rgba(30, 41, 59, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.map-layers button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.map-layers button[aria-pressed="true"] {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+  color: white;
+}
+
+.temperature {
+  position: absolute;
+  bottom: 40px;
+  left: 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 10;
+}
+
+.temperature strong {
+  font-size: 72px;
+  font-weight: 800;
+  letter-spacing: -3px;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.temperature .icon {
+  width: 48px;
+  height: 48px;
+  color: var(--warm);
+  stroke-width: 1.5;
+}
+
+.temperature p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+/* === Window Card === */
+.window-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.window-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+.best-window {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-top: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.window-caption {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  line-height: 1.7;
+}
+
+.window-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+
+.window-stats dt {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.window-stats dd {
+  margin-top: 10px;
+  font-size: 28px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.window-stats small {
+  font-size: 16px;
+  font-weight: 400;
+  margin-left: 6px;
+  color: var(--text-muted);
+}
+
+.window-note {
+  font-size: 13px;
+  color: #FCD34D;
+  margin: 24px 0;
+  display: flex;
+  gap: 10px;
+  line-height: 1.7;
+  padding: 16px;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.window-card .button {
+  margin-top: auto;
+  width: 100%;
+}
+
+/* === Panel === */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.panel-head h2 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.panel-head p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+.chart-control {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  background: var(--slate);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.chart-control button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.chart-control button[aria-pressed="true"] {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+  color: white;
+}
+
+.forecast-chart {
+  width: 100%;
+  height: 240px;
+  cursor: crosshair;
+}
+
+.chart-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.chart-keys {
+  display: flex;
+  gap: 24px;
+}
+
+.chart-keys span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.chart-keys i {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+/* === Bottom Row === */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 28px;
+}
+
+.task-strip {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-top: 24px;
+}
+
+.task-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--slate);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  flex-shrink: 0;
+  color: var(--accent-glow);
+}
+
+.task-icon .icon {
+  width: 28px;
+  height: 28px;
+}
+
+.task-strip strong {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.task-strip p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  line-height: 1.7;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent-glow);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.tag.warm {
+  background: rgba(245, 158, 11, 0.15);
+  color: #FCD34D;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+/* === Dialog === */
+dialog {
+  border: 0;
+  border-radius: 20px;
+  padding: 0;
+  width: min(560px, calc(100vw - 32px));
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+}
+
+dialog::backdrop {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-head h2 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.modal-body {
+  padding: 32px;
+}
+
+.modal-body p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.modal-body .field {
+  margin-top: 24px;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.modal-error {
+  font-size: 13px;
+  color: #F87171;
+  margin-top: 20px;
+  padding: 14px;
+  background: rgba(248, 113, 113, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+/* === Toast === */
+.toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--slate);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 18px 28px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .content { padding: 24px; }
+  .weather-layout { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .bottom-row { grid-template-columns: 1fr; }
+  .page-title { flex-direction: column; }
+}
+
+/* Complete the supplied framework without replacing its navigation or layout. */
+:root{--navy:#0b1120;--slate:#edf2f8;--slate-soft:#dce5f1;--text:#18314c;--text-muted:#62758c;--accent-glow:#3b82f6;--bg:#f6f8fc;--panel:#fff}
+body{font-family:"Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:16px;line-height:1.65}
+.sidebar{color:#e9f1ff}.sidebar .brand-name,.sidebar .member-card h3{color:#f1f5f9}.sidebar .nav-button{color:#9caec6;font-size:16px}.sidebar .nav-button:hover{background:#1e293b;color:white}.sidebar .nav-button[aria-current="page"]{color:white}.sidebar .count{background:#24334b;color:#e0ebff}.sidebar .member-card p{color:#a9bad2}.sidebar .member-card{border-color:#2d3e57}.sidebar .eyebrow{color:#82b2ff}.sidebar .member-button{font-size:15px}.topbar .breadcrumb{color:#c0cee1}.topbar .demo-badge{background:#172237;color:#b9c9e3;border-color:#2d3e57}.topbar .icon-button{color:#b7c9e4}.topbar .icon-button:hover{background:#1e293b}
+.page-title p,.field select,.field input,.button,.segment button{font-size:16px}.field label,.window-stats dt{font-size:14px;letter-spacing:0;text-transform:none}.eyebrow{font-size:12px}.panel-head p{font-size:14px}.window-stats dd{display:block;margin-left:0}.window-card{min-width:0}.best-window{font-size:38px;line-height:1.4}.window-caption{font-size:15px}.window-note{font-size:14px}.window-card .button{min-height:48px}.panel{min-width:0}.panel-head{gap:18px}.button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible,svg:focus-visible,button:focus-visible{outline:3px solid #f2b34f;outline-offset:4px}.icon{flex-shrink:0}.defs{position:absolute;width:0;height:0;overflow:hidden}[hidden]{display:none!important}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.precision-intro{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 20px;border:1px solid #c9ddfb;background:#eef5ff;border-radius:13px;margin:-13px 0 26px;font-size:15px;color:#365d94}.precision-intro strong{color:#1d5cc4;font-weight:600}.precision-intro button{font-size:14px;white-space:nowrap;color:#2563eb;font-weight:600;min-height:36px}.precision-intro .arrow{margin:0 10px;color:#7d99c4}.precision-cue{font-size:12px;color:#3875d6;letter-spacing:.04em}.precision-boundary{font-size:12px;color:#728397;line-height:1.8;margin-top:13px}
+.weather-layout{grid-template-columns:minmax(0,1.8fr) minmax(320px,1fr);align-items:stretch;gap:24px}.weather-map{padding:0;background:white;box-shadow:0 6px 22px #18314c08;border-color:var(--border);display:flex;flex-direction:column;min-height:580px}.map-head{padding:23px 24px 16px;margin:0;z-index:3}.map-head .eyebrow{color:#6685a8;font-size:12px}.map-head h2{font-size:21px;line-height:1.5;margin-top:6px}.favorite{width:44px;height:44px;border-radius:11px}.favorite[aria-pressed="true"]{color:#9b691b;background:#fff2d1;box-shadow:none;border:1px solid #f3d89c}.map-toolbar{padding:0 24px 17px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.map-modes{display:flex;gap:4px;padding:4px;border:1px solid #dfe7f1;background:#eef3fa;border-radius:10px}.map-modes button{font-size:14px;padding:7px 12px;border-radius:7px;min-height:36px;color:#5b7494}.map-modes button[aria-pressed="true"]{color:#2563eb;background:white;box-shadow:0 2px 5px #18314c0a}.map-status{font-size:12px;color:#6b8199}.map-viewport{position:relative;min-height:380px;flex:1;background:#eaf0f7;overflow:hidden}.map-viewport iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#eef2f6}.map-viewport .scene-map{position:absolute;inset:0;width:100%;height:100%;min-height:380px}.scene-map svg{width:100%;height:100%;display:block}.scene-map [data-point]{cursor:pointer}.scene-map [data-point]:focus{outline:none;filter:drop-shadow(0 0 4px #2563eb)}.map-live-note{position:absolute;left:14px;top:14px;z-index:2;background:#ffffffed;border:1px solid #dce6f2;color:#4b6b91;padding:7px 10px;border-radius:7px;font-size:12px;max-width:260px}.map-provenance{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 20px;font-size:12px;color:#6c819a;border-top:1px solid #e0e7f0;background:#fafcfe}.map-provenance a{color:#476f9e;text-decoration:underline;text-underline-offset:3px}.map-provenance button{color:#2563eb;font-size:12px;min-height:30px}.temperature{position:absolute;left:14px;bottom:38px;z-index:2;display:flex;gap:9px;background:#ffffffed;border:1px solid #dce6f2;padding:11px 14px;border-radius:12px;pointer-events:none}.temperature strong{font-size:36px;background:none;-webkit-text-fill-color:initial;color:#274b76;letter-spacing:-1px}.temperature .icon{width:25px;height:25px}.temperature p{font-size:12px;margin:4px 0 0;color:#5f7795}.temperature[hidden]{display:none}.window-card{padding:28px;box-shadow:0 6px 22px #18314c08}.window-card h2{font-size:20px}.window-stats{padding-top:20px;margin-top:20px;gap:12px}.window-stats dt{font-size:13px}.window-stats small{font-size:14px}.window-note{margin:20px 0;padding:13px}.window-caption{line-height:1.8}
+.precision-panel{margin:0 0 28px}.precision-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px;flex-wrap:wrap}.precision-heading h2{font-size:24px;font-weight:700}.precision-heading p{font-size:14px;color:var(--text-muted);margin-top:7px}.probe-control{display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:14px}.probe-control select{font-size:16px;color:#1c4a87;background:#edf3fd;border:1px solid #cdddf4;border-radius:8px;padding:9px 12px}.precision-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}.precision-card{border:1px solid #e1e7f0;border-radius:14px;padding:23px;background:#f4f6fa;min-width:0}.precision-card.fine{background:#eef5ff;border-color:#a9c9fa}.precision-card .type{font-size:14px;color:#627892;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}.precision-card .type b{font-size:12px;background:#e3e9f1;padding:4px 7px;border-radius:5px;color:#637a96}.precision-card.fine .type b{color:#2868d7;background:#dceaff}.comparison-number{font-size:40px;font-weight:800;color:#4c6078;line-height:1.4;margin:13px 0 7px;font-variant-numeric:tabular-nums}.comparison-number small{font-size:15px;font-weight:500;margin-left:6px}.precision-card.fine .comparison-number{color:#2563eb}.precision-card p{font-size:15px;color:#5b7597;line-height:1.8}.precision-card strong{font-weight:600;color:#284f82}.point-contrast{display:flex;align-items:center;gap:18px;padding:18px 21px;background:#fff8eb;border:1px solid #f3dfb9;border-radius:12px;margin:20px 0 24px;flex-wrap:wrap;font-size:15px;color:#886a36}.point-contrast strong{font-weight:700;color:#8c601d}.point-contrast span:last-child{font-size:13px;color:#917443}.map-layers{position:static;display:flex;align-items:center;padding:4px;background:#edf2fa;backdrop-filter:none;border:1px solid #dbe5f1;border-radius:9px;gap:3px}.map-layers button{font-size:13px;padding:8px 11px;color:#617c9d}.map-layers button[aria-pressed="true"]{background:#dceaff;color:#2563eb;box-shadow:none}.precision-toggles{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:14px}.chart-control button{font-size:14px;padding:8px 11px}.chart-control button[aria-pressed="true"]{background:#2563eb}.forecast-wrap{overflow-x:auto;overscroll-behavior-x:contain}.forecast-chart{width:100%;min-width:620px;height:250px}.chart-footer{font-size:13px;align-items:flex-start;gap:15px;flex-wrap:wrap;margin-top:15px;padding-top:15px}.chart-keys{gap:17px;flex-wrap:wrap}.chart-keys span{gap:7px}.chart-keys i{height:9px;width:12px;display:inline-block;border-radius:2px}.method-details{font-size:13px;color:#657b95;margin-top:20px;border-top:1px solid #e1e7f0;padding-top:15px}.method-details summary{cursor:pointer;color:#486c9e;min-height:30px}.method-details p{margin-top:10px;line-height:1.9}
+.scenario-section{margin-top:28px}.scenario-header{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px}.scenario-header h2{font-size:24px}.scenario-header p{font-size:14px;color:var(--text-muted);margin-top:6px}.scenario-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:25px}.mission-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.mission-step{border:1px solid #dfe7f1;background:#f8fafd;border-radius:12px;padding:19px 16px}.mission-step .step-no{font-size:12px;font-weight:700;color:#7599ca;letter-spacing:.1em}.mission-step strong{font-size:17px;display:block;margin:9px 0 7px;color:#284b76}.mission-step p{font-size:14px;color:#617a98;line-height:1.9}.preparation-box{background:#f1f6fe;border:1px solid #dce8fb;border-radius:12px;padding:20px}.preparation-box h3{font-size:17px;margin-bottom:12px}.check-line{display:flex;align-items:flex-start;gap:10px;margin-top:10px;font-size:15px;color:#4d6c93;cursor:pointer}.check-line input{accent-color:#2563eb;width:17px;height:17px;flex-shrink:0;margin-top:4px}.check-progress{font-size:13px;color:#5b80ae;margin-top:16px}.task-role{font-size:14px;color:#7a8ba1;line-height:1.8;margin-top:18px}.scene-tag{font-size:13px;color:#2868d7;padding:5px 10px;border-radius:6px;background:#e8f1ff}.bottom-row{margin-top:28px}.bottom-row .panel h2{font-size:21px}.task-strip p{font-size:15px}.task-strip strong{font-size:17px}.page-footer{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-top:32px;padding:22px 0;border-top:1px solid var(--border);font-size:12px;color:#6f839d}.page-footer button{font-size:12px;color:#2563eb;white-space:nowrap}.text-button{font-size:14px;color:#2563eb;min-height:35px}.mini-reminder{display:flex;justify-content:space-between;align-items:center;gap:14px;border-top:1px solid var(--border);margin-top:17px;padding-top:17px}.mini-reminder strong{font-size:15px}.mini-reminder small{font-size:13px;color:var(--text-muted)}
+/* Actual reminder, enterprise and membership workflows. */
+.reminder-card{display:flex;align-items:flex-start;gap:18px;padding:24px 0}.reminder-card+.reminder-card{border-top:1px solid var(--border)}.reminder-body{flex:1;min-width:0}.reminder-body h3{font-size:20px}.reminder-body p{font-size:15px;line-height:1.9;color:var(--text-muted);margin-top:8px}.match{display:inline-flex;font-size:13px;background:#fff5df;border:1px solid #f2dfb7;color:#93703b;border-radius:7px;padding:6px 10px;margin-top:12px}.match.off{background:#eef2f6;color:#7387a1;border-color:#e1e7ef}.reminder-actions{display:flex;align-items:center;gap:14px}.toggle{display:flex;align-items:center;width:42px;height:25px;padding:3px;border-radius:20px;background:#cad7e7}.toggle i{width:19px;height:19px;border-radius:50%;background:white}.toggle[aria-checked="true"]{background:#2563eb}.toggle[aria-checked="true"] i{transform:translateX(17px)}.delete-button{min-width:40px;min-height:40px;color:#8496af}.delete-button:hover{color:#b7684d}.empty-state{text-align:center;padding:45px 10px}.empty-state h2{font-size:24px}.empty-state p{font-size:16px;line-height:1.8;color:var(--text-muted);margin:12px auto 23px;max-width:460px}.empty-symbol{margin:auto auto 20px;color:#729cd5}.empty-symbol .icon{width:40px;height:40px}.favorite-chip{font-size:15px;padding:11px 15px;border:1px solid #dce6f3;background:#f5f8fd;border-radius:9px}.favorite-chip:hover{border-color:#7ea8df}.local-note{font-size:13px;color:#7389a4;line-height:1.9;margin-top:18px}.local-note .icon{width:16px;height:16px}.enterprise-hero{display:flex;align-items:center;justify-content:space-between;gap:25px;background:#eaf2ff;border:1px solid #cfdef4;border-radius:18px;padding:31px 33px;margin-bottom:25px}.enterprise-hero h2{font-size:30px;color:#244f86;line-height:1.6;margin-top:10px}.enterprise-hero p{font-size:16px;color:#55769f;max-width:640px;line-height:1.9;margin-top:13px}.enterprise-number{font-size:49px;font-weight:800;white-space:nowrap;color:#2563eb;line-height:1.3}.enterprise-number small{font-size:18px}.number-caption{font-size:13px;color:#6181aa;margin-top:10px;text-align:right}.enterprise-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(310px,1fr);gap:24px}.business-notes h3{font-size:21px}.numbered-note{display:flex;gap:14px;margin-top:22px}.numbered-note>span{font-size:13px;color:#81a3ce;padding-top:3px}.numbered-note strong{font-size:16px}.numbered-note p{font-size:14px;color:var(--text-muted);line-height:1.9;margin-top:6px}.business-notes .button{width:100%;margin-top:25px}.business-control{display:flex;align-items:center;justify-content:space-between;gap:17px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--border);margin-top:20px}.business-control label{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-muted)}.business-control input{max-width:135px;accent-color:#2563eb}.business-chart{width:100%;height:270px}.mini-segment{display:flex;gap:4px}.mini-segment button{font-size:13px;padding:8px 10px;background:#edf3fb;border-radius:7px;min-height:36px;color:#6783a6}.mini-segment button[aria-pressed="true"]{background:#dbe9ff;color:#2563eb}.wide-note{font-size:13px;color:#6a819e;padding:17px 21px;border-radius:10px;background:#edf3fb;line-height:1.9;margin-top:25px}.rail-row{display:grid;grid-template-columns:1.2fr 1.4fr auto;gap:17px;align-items:center;width:100%;padding:23px 0;text-align:left;border-bottom:1px solid var(--border)}.rail-row:last-child{border:0}.rail-row strong{font-size:16px}.rail-row small{display:block;font-size:12px;color:var(--text-muted);margin-top:6px}.rail-row[aria-pressed="true"] strong{color:#2563eb}.rain-track{height:8px;background:#e6edf7;border-radius:10px}.rain-track i{display:block;height:100%;background:#8aaddb;border-radius:10px}.rail-row[aria-pressed="true"] .rain-track i{background:#d2a554}.rain-value{font-size:25px;font-weight:700}.aviation-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;padding:23px 0}.aviation-stats>div{border-right:1px solid var(--border);padding-right:12px}.aviation-stats>div:last-child{border:0}.aviation-stats span{font-size:14px;color:var(--text-muted)}.aviation-stats strong{display:block;font-size:35px;margin:12px 0}.aviation-stats small{font-size:14px}.aviation-band{display:flex;gap:13px;align-items:center;font-size:15px;line-height:1.9;color:#5c7ea7;background:#edf4ff;padding:18px;border-radius:10px}.aviation-band .icon{flex-shrink:0}.tag.orange{background:#fff4de;color:#9d752d;border-color:#f3dfb5}dialog{max-height:90vh}.modal-body p,.modal-body .field input,.modal-body .field select{font-size:16px}.modal-head h2{font-size:24px}.member-fine{font-size:13px!important;margin-top:17px;line-height:1.9!important}.perk{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--border);font-size:15px}.perk .icon{width:18px;height:18px;color:#2563eb}.modal-actions{flex-wrap:wrap}.toast{font-size:15px}.mobile-nav{display:none}.chart-hint{font-size:12px;color:#8195ae;margin:10px 0}
+@media(max-width:1200px){.sidebar{width:225px;padding:27px 15px}.main{margin-left:225px}.content{padding:32px 28px}.topbar{padding-inline:28px}.page-title h1{font-size:31px}.date-stamp{padding:20px}.form-grid{gap:13px;padding:22px;grid-template-columns:1.45fr 1.1fr 1.1fr .8fr .8fr}.field select{padding:11px 8px}.weather-layout{grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:20px}.map-head{padding:22px 20px 15px}.map-toolbar{padding-inline:20px}.window-card{padding:24px}.best-window{font-size:32px}.precision-panel,.panel{padding:27px}.comparison-number{font-size:35px}.enterprise-grid{grid-template-columns:1fr}.business-notes{display:grid;grid-template-columns:1fr 1fr;gap:0 25px}.business-notes h3{grid-column:span 2}.business-notes .button{align-self:end}.scenario-layout{grid-template-columns:1fr}}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.topbar{padding-inline:23px}.content{padding:28px 23px 110px}.mobile-nav{position:fixed;bottom:0;left:0;right:0;height:76px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #dce6f3;background:#fffffff5;backdrop-filter:blur(12px);z-index:40}.mobile-nav button{display:flex;flex-direction:column;align-items:center;gap:4px;justify-content:center;font-size:12px;color:#8195ad;min-height:58px;flex:1}.mobile-nav button[aria-current="page"]{color:#2563eb;font-weight:600}.form-grid{grid-template-columns:1fr 1fr}.field.location-field{grid-column:1/3}.weather-layout{grid-template-columns:1fr}.weather-map{min-height:570px}.bottom-row{grid-template-columns:1fr}.page-title{flex-direction:row}.page-title h1{font-size:31px}.date-stamp{display:none}.precision-intro{margin-top:0}.precision-cards{gap:15px}.comparison-number{font-size:34px}.bottom-row .panel{padding:26px}.toast{bottom:96px}.enterprise-hero h2{font-size:27px}}
+@media(max-width:600px){.topbar{height:67px;padding-inline:18px}.topbar .breadcrumb{font-size:12px;max-width:145px}.topbar>div:last-child{gap:7px!important}.demo-badge{font-size:12px;padding:6px 9px;gap:6px}.demo-badge:before{width:5px;height:5px}.icon-button{width:36px;height:36px}.content{padding:25px 17px 105px}.page-title{gap:10px;margin-bottom:24px}.page-title .eyebrow{font-size:12px;line-height:1.8;letter-spacing:.04em}.page-title h1{font-size:31px;letter-spacing:-.8px;line-height:1.5}.page-title p{font-size:16px}.precision-intro{padding:15px 17px;display:block;font-size:14px;line-height:1.9;margin-bottom:24px}.precision-intro button{margin-top:8px;display:block}.workspace-tools{gap:12px!important;margin-bottom:20px!important}.segment{width:100%;justify-content:space-between;padding:4px;gap:2px}.segment button{font-size:14px;gap:5px;padding:10px 6px;justify-content:center;min-height:44px;flex:1}.segment .icon{width:17px;height:17px}.workspace-tools>.button{margin-left:auto;font-size:14px;padding:10px 14px}.form-grid{grid-template-columns:1fr 1fr;padding:21px 19px;gap:18px 15px}.field label{font-size:14px}.field select,.field input{font-size:16px;padding:11px 9px}.weather-map{border-radius:16px;min-height:570px}.map-head h2{font-size:21px}.map-head .eyebrow{font-size:12px;letter-spacing:0}.map-toolbar{padding-inline:19px;gap:9px}.map-modes button{font-size:14px;padding:8px 10px}.map-status{font-size:12px}.map-viewport{min-height:370px}.scene-map svg{min-width:640px;max-width:none;width:640px;height:370px}.scene-map{overflow-x:auto;overscroll-behavior:contain}.map-provenance{padding:12px 17px;font-size:12px}.map-live-note{max-width:230px;font-size:12px}.temperature{bottom:43px;padding:9px 11px}.temperature strong{font-size:32px}.temperature p{font-size:12px}.window-card{padding:25px;border-radius:16px}.window-card h2{font-size:21px}.best-window{font-size:37px}.window-stats dt{font-size:14px}.window-stats dd{font-size:30px}.window-note{font-size:14px}.precision-heading h2{font-size:24px}.precision-heading p{font-size:15px;line-height:1.8}.probe-control{font-size:14px}.precision-cards{grid-template-columns:1fr;gap:15px}.precision-card{padding:21px}.comparison-number{font-size:38px}.precision-card p{font-size:15px}.point-contrast{padding:17px;font-size:15px;gap:10px;line-height:1.8}.point-contrast span:last-child{font-size:13px}.precision-panel{padding:24px 20px}.precision-toggles{display:block}.map-layers{display:inline-flex;margin-bottom:12px;max-width:100%;flex-wrap:wrap}.map-layers button{font-size:13px;padding:8px 9px}.chart-control{display:inline-flex;padding:4px}.chart-control button{font-size:13px;padding:8px 11px}.forecast-chart{min-width:620px;height:250px}.chart-footer{font-size:13px;gap:13px}.chart-keys{gap:12px}.chart-keys span{font-size:13px}.method-details{font-size:13px}.scenario-header h2{font-size:23px}.scenario-layout{gap:19px}.mission-steps{grid-template-columns:1fr}.mission-step{padding:19px}.mission-step strong{font-size:18px}.mission-step p{font-size:15px}.scenario-section{padding:25px 21px}.preparation-box h3{font-size:18px}.check-line{font-size:16px}.task-role{font-size:14px}.bottom-row .panel{padding:25px 21px}.task-strip{gap:13px}.task-icon{width:44px;height:44px;border-radius:11px}.task-icon .icon{width:22px;height:22px}.task-strip strong{font-size:16px}.task-strip p{font-size:15px}.mini-reminder{flex-wrap:wrap}.mini-reminder strong{font-size:15px}.page-footer{font-size:12px;gap:15px;flex-wrap:wrap}.page-footer>span{flex:1;min-width:200px}.reminder-card{gap:13px;flex-wrap:wrap}.reminder-body{min-width:180px}.reminder-actions{margin-left:auto}.reminder-body h3{font-size:19px}.reminder-body p{font-size:15px}.match{font-size:13px}.enterprise-hero{display:block;padding:27px 24px}.enterprise-hero h2{font-size:29px}.enterprise-hero p{font-size:16px}.enterprise-number{font-size:46px;margin-top:23px}.number-caption{text-align:left;font-size:13px}.business-notes{display:block}.numbered-note strong{font-size:16px}.numbered-note p{font-size:14px}.business-control label{font-size:14px}.business-control input{max-width:110px}.business-chart{min-width:780px;height:260px}#energy-curve{overflow-x:auto}.aviation-stats{gap:10px}.aviation-stats strong{font-size:29px;overflow-wrap:anywhere}.aviation-stats span{font-size:13px}.aviation-stats small{font-size:13px}.aviation-band{font-size:15px}.rail-row{gap:13px;grid-template-columns:1.3fr 1fr auto}.rail-row strong{font-size:15px}.rain-value{font-size:23px}.modal-head{padding:23px}.modal-head h2{font-size:23px}.modal-body{padding:23px}.modal-body p,.modal-body .field input,.modal-body .field select{font-size:16px}.modal-grid{gap:13px}.modal-actions .button{font-size:15px;padding:12px 15px}.member-fine{font-size:13px!important}.toast{font-size:14px;bottom:92px;padding:13px 18px;width:max-content}.button{min-height:44px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.window-note{color:#8a672c}.trial-planner{padding:23px;border:1px solid #d5e3f8;background:#f6f9ff;border-radius:13px;margin-top:24px}.trial-planner h3{font-size:20px}.trial-planner>div>p{font-size:15px;color:#6b839f;margin-top:7px}.trial-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:18px}.trial-actions label{display:flex;align-items:center;gap:12px;font-size:15px;color:#56789f}.trial-actions select{font-size:16px;padding:10px 12px;border:1px solid #cfdff4;background:white;border-radius:8px;color:#1d548f}.trial-result{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:22px;font-size:15px;line-height:1.8;color:#4e6d94}.trial-result>div{padding:17px;background:white;border:1px solid #dbe6f4;border-radius:10px}.trial-result span{font-size:14px;color:#7188a4}.trial-result strong{display:block;font-size:23px;color:#245ea9;margin:7px 0}.trial-result p{font-size:14px}.trial-result small{font-size:12px;grid-column:1/3;line-height:1.9}.trial-result:empty{display:none}
+@media(max-width:600px){.trial-planner{padding:20px}.trial-planner h3{font-size:20px}.trial-result{grid-template-columns:1fr}.trial-result small{grid-column:1}.trial-actions{gap:14px}.trial-actions .button{font-size:15px}.trial-result strong{font-size:24px}}
+
+dialog{margin:auto}
+
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+<symbol id="i-business" viewBox="0 0 24 24"><path d="M3 21V8h8v13M11 21V3h10v18M7 12v1m0 3v1m8-10h2m-2 4h2m-2 4h2M1 21h22"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.5"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></symbol>
+<symbol id="i-construction" viewBox="0 0 24 24"><path d="M3 16h18M4 16v-3a8 8 0 0 1 5-7m6 0a8 8 0 0 1 5 7v3M9 11V4h6v7M2 16v4h20v-4"/></symbol>
+<symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 3C10 2 3 7 5 15c2 7 16 6 15-12ZM4 21 16 9M9 16v-5m3 2h5"/></symbol>
+<symbol id="i-farm" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v11H3ZM8 21v-7h8v7M3 10h18M10 7h4"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M5 6l1 15h12l1-15M9 6V3h6v3m-5 4v7m4-7v7"/></symbol>
+<symbol id="i-energy" viewBox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 10-12h-8Z"/></symbol>
+<symbol id="i-plane" viewBox="0 0 24 24"><path d="m2 13 8-3V4c0-3 4-3 4 0v6l8 3v3l-8-1v5l3 1v1H7v-1l3-1v-5l-8 1Z"/></symbol>
+<symbol id="i-rail" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="17" rx="4"/><path d="M5 10h14M8 5h8M8 15h.1m7.9 0h.1M8 19l-3 3m11-3 3 3"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4m-4 5v2"/></symbol>
+</defs></svg>
+
+<aside class="sidebar">
+  <a href="#workspace" class="brand">
+    <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+      <defs>
+        <linearGradient id="brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#3B82F6"/>
+          <stop offset="100%" style="stop-color:#60A5FA"/>
+        </linearGradient>
+      </defs>
+      <path d="M6 12c10-10 18-9 24-3M5 20c8-8 16-9 25-3M5 28c7-8 17-9 25-4"
+            fill="none" stroke="url(#brand-grad)" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="28" cy="30" r="5" fill="#F59E0B"/>
+    </svg>
+    <span class="brand-name">skysight<b>.</b></span>
+  </a>
+
+  <nav class="nav">
+    <button class="nav-button" data-page="workspace" aria-current="page">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      作业天气
+    </button>
+    <button class="nav-button" data-page="reminders">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+      提醒与地点
+      <span class="count" id="reminder-count">0</span>
+    </button>
+    <button class="nav-button" data-page="enterprise">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 21V8h8v13M11 21V3h10v18M7 12v1m0 3v1m8-10h2m-2 4h2m-2 4h2M1 21h22"/></svg>
+      企业服务
+    </button>
+  </nav>
+
+  <div class="member-card">
+    <div class="eyebrow">SKYSIGHT PRO</div>
+    <h3 id="member-side-title">天气更细一些，<br>安排从容一些。</h3>
+    <p id="member-side-caption">多地点收藏 · 精细视图体验</p>
+    <button class="member-button" data-member>
+      <span id="member-side-button">体验专业会员</span>
+      <svg class="icon" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M4 12h16m-6-6 6 6-6 6"/></svg>
+    </button>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <div class="breadcrumb" id="breadcrumb">我的工作空间 / 作业天气</div>
+    <div style="display:flex;gap:20px;align-items:center">
+      <span class="demo-badge">专业场景 · 天气示例</span>
+      <button class="icon-button" id="about-button" aria-label="了解此演示">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.5"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="content" id="main-content" tabindex="-1">
+
+    <!-- Workspace Page -->
+    <section id="workspace-page">
+      <div class="page-title">
+        <div>
+          <div class="eyebrow">PRECISION FOR PROFESSIONAL WORK</div>
+          <h1>天气精细到点，工作安排到时。</h1>
+          <p>为建材卸货、粮食转运、饲草入库，分开看地点与10分钟时段。</p>
+        </div>
+        <div class="date-stamp">
+          <strong id="date-number">26</strong>
+          <span>OCT 2026<br><span id="date-weekday">MONDAY</span></span>
+        </div>
+      </div>
+
+      <div class="precision-intro"><span><strong>5 km / 1小时示意</strong><span class="arrow">→</span><strong>1 km / 10分钟示意</strong> · 信息颗粒度怎样影响一项工作？</span><button id="show-precision">看粗细对比 ↓</button></div>
+<div class="workspace-tools" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:24px;flex-wrap:wrap">
+        <div class="segment">
+          <button data-scene="construction" aria-pressed="true">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 16h18M4 16v-3a8 8 0 0 1 5-7m6 0a8 8 0 0 1 5 7v3M9 11V4h6v7M2 16v4h20v-4"/></svg>
+            工程施工
+          </button>
+          <button data-scene="agriculture" aria-pressed="false">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M20 3C10 2 3 7 5 15c2 7 16 6 15-12ZM4 21 16 9M9 16v-5m3 2h5"/></svg>
+            农业作业
+          </button>
+          <button data-scene="livestock" aria-pressed="false">
+            <svg class="icon" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v11H3ZM8 21v-7h8v7M3 10h18M10 7h4"/></svg>
+            畜牧管理
+          </button>
+        </div>
+        <button class="button" id="export-workspace">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/></svg>
+          导出作业简报
+        </button>
+      </div>
+
+      <div class="form-grid">
+        <div class="field location-field">
+          <label for="location">作业地点</label>
+          <select id="location"></select>
+        </div>
+        <div class="field">
+          <label for="task">工作任务</label>
+          <select id="task"></select>
+        </div>
+        <div class="field">
+          <label for="day">查看日期</label>
+          <select id="day">
+            <option value="0">10月26日 · 情景日一</option>
+            <option value="1">10月27日 · 情景日二</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="start">开始时间</label>
+          <select id="start"></select>
+        </div>
+        <div class="field">
+          <label for="end">结束时间</label>
+          <select id="end"></select>
+        </div>
+      </div>
+
+      <p class="modal-error" id="range-error" role="alert" hidden style="margin-bottom:24px">结束时间需要晚于开始时间，请重新选择。</p>
+
+      <div class="weather-layout">
+        <div class="weather-map">
+ <div class="map-head"><div><div class="eyebrow">地图定位与作业场景</div><h2 id="map-location">郑州经开区附近 · 材料卸货情景</h2></div><button class="favorite" id="favorite-location" aria-label="收藏当前地点" aria-pressed="true"><svg class="icon" viewBox="0 0 24 24"><use href="#i-star"/></svg></button></div>
+ <div class="map-toolbar"><div class="map-modes" role="group" aria-label="地图类型"><button data-map-mode="live" aria-pressed="true">真实底图</button><button data-map-mode="layout" aria-pressed="false">作业布置图</button></div><span class="map-status" id="map-status">真实底图 · 需联网</span></div>
+ <div class="map-viewport"><iframe id="map-frame" title="OpenStreetMap真实地理底图，标记为地区参考选点" referrerpolicy="strict-origin-when-cross-origin"></iframe><div id="scene-map" class="scene-map" hidden></div><span class="map-live-note" id="live-map-note">地区参考点，不代表真实工地、农田或牧场项目。</span><div class="temperature" id="map-weather-chip"><svg class="icon" viewBox="0 0 24 24"><use href="#i-sun"/></svg><div><strong id="map-temp">24°</strong><p id="map-weather">10:00 合成天气样例</p></div></div></div>
+ <div class="map-provenance"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a><button id="show-layout">地图未显示？看作业布置图</button></div><span id="map-task" hidden></span>
+</div>
+
+        <div class="window-card">
+          <div class="precision-cue">精细天气预览 · 1 km / 10分钟为示意规格</div>
+          <h2>当前作业点的低降水时段</h2>
+          <div class="best-window" id="best-window">08:00—11:00</div>
+          <p class="window-caption" id="window-caption">在你的作业时段内，比较天气变化。</p>
+
+          <dl class="window-stats">
+            <div>
+              <dt>最大降水强度</dt>
+              <dd><span id="max-rain">6.2</span><small>mm/h</small></dd>
+            </div>
+            <div>
+              <dt>最大风速</dt>
+              <dd><span id="max-wind">5.4</span><small>m/s</small></dd>
+            </div>
+          </dl>
+
+          <div class="window-note">
+            <svg class="icon" viewBox="0 0 24 24" style="flex-shrink:0;width:18px;height:18px"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.5"/></svg>
+            <span id="window-note">留意午后变化，提前考虑材料遮盖与运输安排。</span>
+          </div>
+
+          <button class="button primary" id="add-reminder">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+            为这项工作设置提醒
+          </button><p class="precision-boundary">按合成降水强度＜0.5 mm/h的连续段比较，不代表作业安全许可。</p>
+        </div>
+      </div>
+
+<section class="panel precision-panel" id="precision-panel">
+ <div class="precision-heading"><div><h2>同一场雨，信息细到哪一步？</h2><p>用同一份合成数据，看地点与时间被合并后，哪些细节会消失。</p></div><label class="probe-control" for="comparison-hour">关注小时 <select id="comparison-hour"><option value="6">06:00—07:00</option><option value="7">07:00—08:00</option><option value="8">08:00—09:00</option><option value="9">09:00—10:00</option><option value="10">10:00—11:00</option><option value="11">11:00—12:00</option><option value="12">12:00—13:00</option><option value="13">13:00—14:00</option><option value="14">14:00—15:00</option><option value="15">15:00—16:00</option><option value="16">16:00—17:00</option><option value="17">17:00—18:00</option><option value="18">18:00—19:00</option><option value="19">19:00—20:00</option><option value="20">20:00—21:00</option></select></label></div>
+ <div class="precision-cards"><article class="precision-card"><div class="type">区域概览示意 <b>5 km · 1小时</b></div><div class="comparison-number"><span id="coarse-value">1.4</span><small>mm/h</small></div><p><strong id="comparison-period">14:00—15:00</strong> 的区域小时均值</p><p id="coarse-description"></p></article><article class="precision-card fine"><div class="type">具体作业点示意 <b>1 km · 10分钟</b></div><div class="comparison-number"><span id="fine-value">6.2</span><small>mm/h</small></div><p><strong id="fine-period">14:20—14:50 降水较集中</strong></p><p id="fine-description"></p><span id="fine-task" hidden></span></article></div>
+ <div class="point-contrast" id="point-contrast"></div>
+ <div class="precision-toggles"><div class="map-layers" role="group" aria-label="空间粒度演示"><button data-grid="coarse" aria-pressed="false">区域网格示意</button><button data-grid="fine" aria-pressed="true">作业点网格 · PRO</button></div><div class="chart-control" role="group" aria-label="时间步长"><button data-step="60" aria-pressed="false">区域小时值</button><button data-step="10" aria-pressed="true">本点10分钟</button></div></div>
+ <p id="forecast-subtitle" class="chart-hint"></p><div class="forecast-wrap"><svg id="forecast-chart" class="forecast-chart" viewBox="0 0 900 250" role="img" aria-label="同一份合成天气的区域小时值和当前点10分钟值对比" tabindex="0"></svg></div>
+ <div class="chart-footer"><div class="chart-keys"><span><i style="background:#b9c7d8"></i>区域小时均值</span><span><i style="background:#4d8df0"></i>作业点10分钟值</span><span><i style="background:#f0ac43"></i>≥2 mm/h示例雨段</span></div><div id="chart-detail" aria-live="polite"></div></div>
+ <div class="trial-planner"><div><h3>如果这项工作需要一段连续时间呢？</h3><p>试着把小时内的变化，对应到一段具体任务。</p></div><div class="trial-actions"><label for="trial-duration">任务时长 <select id="trial-duration"><option value="20">20分钟</option><option value="30" selected>30分钟</option><option value="60">60分钟</option></select></label><button class="button primary" id="simulate-plan">比较候选时段</button></div><div id="trial-result" class="trial-result" role="status" hidden></div></div>
+ <details class="method-details"><summary>这些对比能说明什么</summary><p>10分钟数据先按确定性规则生成；小时值由同一份细数据求均值，区域值再合并两个近邻示例点。它能解释细颗粒度信息可能帮助专业任务看见什么，不代表任何竞品的真实预测结果。1 km / 5 km是概念规格，不是已交付模式的证明。</p><p>这里的高分辨率不自动等于更高准确率。实际质量仍需用独立实况、同地点和同有效时刻，与已有工具比较。10分钟值是原生合成点，不是由小时值反向插出更多点。</p></details>
+</section>
+<section class="panel scenario-section"><div class="scenario-header"><div><h2 id="mission-title"></h2><p id="mission-subtitle"></p></div><span class="scene-tag">具体工作流程</span></div><div class="scenario-layout"><div class="mission-steps" id="mission-steps"></div><div class="preparation-box"><h3>这项工作，先核对这些准备</h3><div id="preparation-list"></div><p class="check-progress" id="check-progress"></p></div></div><p class="task-role" id="task-role"></p></section>
+
+      <div class="bottom-row">
+        <section class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h2>让信息跟着任务走</h2>
+            <span class="tag" id="scene-tag">工程施工</span>
+          </div>
+          <div class="task-strip">
+            <div class="task-icon">
+              <svg class="icon" viewBox="0 0 24 24" id="task-icon"><path d="M3 16h18M4 16v-3a8 8 0 0 1 5-7m6 0a8 8 0 0 1 5 7v3M9 11V4h6v7M2 16v4h20v-4"/></svg>
+            </div>
+            <div>
+              <strong id="task-guide-title">材料到场前，先想好遮盖安排</strong>
+              <p id="task-guide-body">结合到场时段查看降水变化，再与现场负责人确认人员、车辆和物料准备。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h2>我的提醒</h2>
+            <button class="button" style="padding:10px 16px;font-size:13px" data-page="reminders">
+              查看全部
+              <svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M4 12h16m-6-6 6 6-6 6"/></svg>
+            </button>
+          </div>
+          <div id="recent-reminders">
+            <div class="task-strip">
+              <div class="task-icon">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+              </div>
+              <div>
+                <strong>把关注条件留在这里</strong>
+                <p>设置一个示例阈值，看看哪些时段会命中。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Reminders Page (simplified placeholder) -->
+    <section id="reminders-page" hidden>
+      <div class="page-title">
+        <div>
+          <div class="eyebrow">LESS CHECKING. MORE PREPARATION.</div>
+          <h1>关注的变化，记在这里。</h1>
+          <p>提醒与收藏仅保存在当前浏览器。</p>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">
+        <p id="reminder-summary" style="font-size:16px;color:var(--text-muted)">还没有设置提醒</p>
+        <button class="button primary" id="new-reminder">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          添加提醒
+        </button>
+      </div>
+      <section class="panel" id="reminder-list"></section>
+      <section class="panel" style="margin-top:28px">
+        <h2 style="margin-bottom:20px">收藏的地点</h2>
+        <button class="text-button" data-member id="favorite-plan">专业体验 · 3个地点</button><div id="favorites-list" style="display:flex;flex-wrap:wrap;gap:12px"></div>
+      </section>
+    </section>
+
+    <!-- Enterprise Page (placeholder) -->
+    <section id="enterprise-page" hidden>
+      <div class="page-title">
+        <div>
+          <div class="eyebrow">WEATHER INTO YOUR WORKFLOW.</div>
+          <h1>让天气，接入业务流程。</h1>
+          <p>从天气信息，到企业需要的辅助分析。</p>
+        </div>
+        <button class="button" id="export-enterprise">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/></svg>
+          导出行业简报
+        </button>
+      </div>
+      <div class="segment" style="margin-bottom:32px">
+        <button data-industry="energy" aria-pressed="true">
+          <svg class="icon" viewBox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 10-12h-8Z"/></svg>
+          能源
+        </button>
+        <button data-industry="aviation" aria-pressed="false">
+          <svg class="icon" viewBox="0 0 24 24"><path d="m2 13 8-3V4c0-3 4-3 4 0v6l8 3v3l-8-1v5l3 1v1H7v-1l3-1v-5l-8 1Z"/></svg>
+          航空
+        </button>
+        <button data-industry="rail" aria-pressed="false">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="17" rx="4"/><path d="M5 10h14M8 5h8M8 15h.1m7.9 0h.1M8 19l-3 3m11-3 3 3"/></svg>
+          轨交
+        </button>
+      </div>
+      <div id="enterprise-content">
+        <div class="panel" style="padding:80px;text-align:center">
+          <p style="font-size:16px;color:var(--text-muted)">企业服务视图演示</p>
+        </div>
+      </div>
+    </section>
+
+  <footer class="page-footer"><span>真实地区底图 · 作业点、路线、天气与功率均为演示 · 不作实际作业或运行决定</span><button id="footer-about">演示与数据说明</button></footer>
+</main>
+</div>
+
+<nav class="mobile-nav" aria-label="移动导航"><button data-page="workspace" aria-current="page"><svg class="icon" viewBox="0 0 24 24"><use href="#i-grid"/></svg>作业天气</button><button data-page="reminders"><svg class="icon" viewBox="0 0 24 24"><use href="#i-bell"/></svg>我的提醒</button><button data-page="enterprise"><svg class="icon" viewBox="0 0 24 24"><use href="#i-business"/></svg>企业服务</button><button data-member><svg class="icon" viewBox="0 0 24 24"><use href="#i-star"/></svg>专业体验</button></nav><span id="profile-plan" hidden></span>
+<!-- Dialogs -->
+<dialog id="reminder-dialog" aria-labelledby="reminder-title">
+  <div class="modal-head">
+    <h2 id="reminder-title">给这项工作留一个提醒</h2>
+    <button class="icon-button" data-close aria-label="关闭">
+      <svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></svg>
+    </button>
+  </div>
+  <form class="modal-body" id="reminder-form">
+    <p id="reminder-context" style="color:var(--text-muted);margin-bottom:20px"></p>
+    <div class="field">
+      <label for="reminder-name">提醒名称</label>
+      <input id="reminder-name" maxlength="40" required autocomplete="off">
+    </div>
+    <div class="modal-grid">
+      <div class="field">
+        <label for="metric">关注条件</label>
+        <select id="metric">
+          <option value="rain">降水强度 ≥</option>
+          <option value="wind">风速 ≥</option>
+          <option value="temp">气温 ≥</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="threshold" id="threshold-label">示例阈值 mm/h</label>
+        <input id="threshold" type="number" value="2" min="0" max="100" step="0.1" required>
+      </div>
+    </div>
+    <p class="member-fine">阈值为自设演示条件，不是行业标准。提醒仅本机保存与计算，无后台监测或推送。</p><div class="modal-error" id="reminder-error" hidden></div>
+    <div class="modal-actions">
+      <button type="button" class="button" data-close>取消</button>
+      <button class="button primary" type="submit">保存到本机</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="member-dialog">
+  <div class="modal-head">
+    <h2>更精细的工作视图</h2>
+    <button class="icon-button" data-close aria-label="关闭">
+      <svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div style="display:flex;align-items:baseline;gap:10px;margin:20px 0">
+      <strong style="font-size:48px;font-weight:800;background:linear-gradient(135deg,#3B82F6,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥49</strong>
+      <span style="color:var(--text-muted)">/ 月 · 课堂定价假设</span>
+    </div>
+    <p style="margin-bottom:24px">专业体验包含：收藏3个地点、精细网格与10分钟天气示例。当前为演示体验，不收费。</p>
+    <p class="member-fine">天气对比为合成数据，空间与时间颗粒度不等于准确率，真实能力需实况检验。</p><div class="modal-actions">
+      <button class="button" id="stop-pro" hidden>结束专业体验</button>
+      <button class="button primary" id="start-pro">开启专业体验 · 不收费</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="about-dialog">
+  <div class="modal-head">
+    <h2>关于这个产品演示</h2>
+    <button class="icon-button" data-close aria-label="关闭">
+      <svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p style="margin-bottom:20px">这是 skysight 专业天气交互原型。真实底图由 OpenStreetMap 提供，联网查看时会访问其服务。地区参考选点不代表真实客户工地或农牧项目，作业布置、路线、天气和功率均为演示。提醒只在本机计算，不对外推送。</p>
+    <p class="member-fine">地理参考：<a href="https://www.wikidata.org/wiki/Q197874" target="_blank" rel="noopener">中牟地区参考点</a>、<a href="https://gcjs.zzdsj.zhengzhou.gov.cn/u/cms/www/202404/0111344658fb.pdf" target="_blank" rel="noopener">荥阳规划资料</a>。作业图是布局示意，不是测绘底图。地图署名：<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>。</p><p id="storage-status" style="font-size:13px;color:var(--text-muted)"></p>
+    <div class="modal-actions">
+      <button class="button" id="reset-demo">重置本机演示</button>
+      <button class="button primary" data-close>开始体验</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/*
+ * skysight 精细粒度演示数据。
+ * 所有数值都是确定性的合成样例，不是实测、实时预报或竞品成绩。
+ * 10 分钟数据先生成，小时数据仅由同一份细数据做算术平均；不反向插值。
+ */
+(function attachPrecisionModel(global) {
+  'use strict';
+
+  const CONFIG = Object.freeze({
+    construction: { shift: 0, scale: 1, temperature: 0 },
+    agriculture: { shift: -70, scale: 0.8, temperature: -0.8 },
+    livestock: { shift: 50, scale: 1.15, temperature: -1.4 }
+  });
+  const PULSE = Object.freeze({
+    '-30': 0.1, '-20': 0.2, '-10': 0.3,
+    0: 3.1, 10: 6.2, 20: 4.4,
+    30: 0.4, 40: 0.2, 50: 0.1
+  });
+  const round = (value, digits = 2) => Number(value.toFixed(digits));
+  const mean = (values, key) => values.reduce((sum, value) => sum + value[key], 0) / values.length;
+  const time = minute => `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
+
+  function normalize(scene, slot, day) {
+    return {
+      scene: Object.prototype.hasOwnProperty.call(CONFIG, scene) ? scene : 'construction',
+      slot: slot === 'b' ? 'b' : 'a',
+      day: Number(day) === 1 ? 1 : 0
+    };
+  }
+
+  function make(scene = 'construction', slot = 'a', day = 0) {
+    const choice = normalize(scene, slot, day);
+    const config = CONFIG[choice.scene];
+    const onset = 14 * 60 + 20 + config.shift + choice.day * 40 + (choice.slot === 'b' ? 10 : 0);
+    const amplitude = config.scale * (choice.day ? 0.7 : 1) * (choice.slot === 'b' ? 0.16 : 1);
+    const fine = Array.from({ length: 90 }, (_, index) => {
+      const minute = 360 + index * 10;
+      const rain = round((PULSE[minute - onset] || 0) * amplitude);
+      const daylight = Math.max(0, Math.sin((minute - 360) / 900 * Math.PI));
+      return {
+        minute,
+        rain,
+        temp: round(18 + config.temperature + 6.4 * daylight - rain * 0.06 + choice.day * 0.7, 1),
+        wind: round(2.3 + daylight * 2.1 + rain * 0.11 + choice.day * 0.3 + (choice.slot === 'b' ? 0.2 : 0), 1)
+      };
+    });
+    const hourly = Array.from({ length: 15 }, (_, index) => {
+      const hour = index + 6;
+      const values = fine.filter(value => value.minute >= hour * 60 && value.minute < (hour + 1) * 60);
+      return { hour, rain: mean(values, 'rain'), temp: mean(values, 'temp'), wind: mean(values, 'wind') };
+    });
+    return { fine, hourly };
+  }
+
+  // 返回满足条件的最长连续段；平局取较早的一段。结束分钟是排他边界。
+  function longestRun(values, predicate, minimumMinutes = 10) {
+    let run = [], best = [];
+    for (const value of values) {
+      if (predicate(value)) {
+        if (run.length && value.minute !== run[run.length - 1].minute + 10) run = [];
+        run.push(value);
+        if (run.length > best.length) best = run.slice();
+      } else {
+        run = [];
+      }
+    }
+    return best.length * 10 >= minimumMinutes
+      ? { start: best[0].minute, end: best[best.length - 1].minute + 10 }
+      : null;
+  }
+
+  function compare(scene = 'construction', slot = 'a', day = 0, hour = 14) {
+    const choice = normalize(scene, slot, day);
+    const selectedHour = Number.isInteger(Number(hour)) && Number(hour) >= 6 && Number(hour) <= 20 ? Number(hour) : 14;
+    const selected = make(choice.scene, choice.slot, choice.day);
+    const neighbor = make(choice.scene, choice.slot === 'a' ? 'b' : 'a', choice.day);
+    const fine = selected.fine.filter(value => value.minute >= selectedHour * 60 && value.minute < (selectedHour + 1) * 60);
+    const localHourlyRain = selected.hourly.find(value => value.hour === selectedHour).rain;
+    const neighborHourlyRain = neighbor.hourly.find(value => value.hour === selectedHour).rain;
+    const coarseRain = (localHourlyRain + neighborHourlyRain) / 2;
+    const peak = fine.reduce((best, value) => value.rain > best.rain ? value : best, fine[0]);
+    const neighborAtPeak = neighbor.fine.find(value => value.minute === peak.minute);
+    const wet = longestRun(fine, value => value.rain >= 2);
+    const pointDifference = round(peak.rain - neighborAtPeak.rain);
+    return {
+      coarseRain,
+      localHourlyRain,
+      fine,
+      peakRain: peak.rain,
+      wetStart: wet ? wet.start : null,
+      wetEnd: wet ? wet.end : null,
+      pointDifference,
+      pointMinute: peak.minute,
+      neighborRainAtPointMinute: neighborAtPeak.rain,
+      description: `${time(selectedHour * 60)}—${time((selectedHour + 1) * 60)}：区域小时均值 ${coarseRain.toFixed(1)} mm/h，当前点的 10 分钟峰值 ${peak.rain.toFixed(1)} mm/h。合成样例，不代表实际预测或某一竞品表现。`
+    };
+  }
+
+  function windowSummary(scene = 'construction', slot = 'a', day = 0, startHour = 8, endHour = 17) {
+    const start = Number(startHour), end = Number(endHour);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+      return { maxRain: null, maxWind: null, bestStart: null, bestEnd: null };
+    }
+    const values = make(scene, slot, day).fine.filter(value => value.minute >= start * 60 && value.minute < end * 60);
+    if (!values.length) return { maxRain: null, maxWind: null, bestStart: null, bestEnd: null };
+    const best = longestRun(values, value => value.rain < 0.5, 30);
+    return {
+      maxRain: Math.max(...values.map(value => value.rain)),
+      maxWind: Math.max(...values.map(value => value.wind)),
+      bestStart: best ? best.start : null,
+      bestEnd: best ? best.end : null
+    };
+  }
+
+  global.SkyPrecision = Object.freeze({ make, compare, windowSummary });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* skysight 作业布局示意。无真实路名、客户、测绘或作业安全结论。 */
+(function attachSceneArt(global) {
+  'use strict';
+  const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  const number = (value, fallback) => Number.isFinite(Number(value)) ? Math.max(0, Math.min(100, Number(value))) : fallback;
+  const POINTS = Object.freeze({ a: { x: 634, y: 265 }, b: { x: 295, y: 326 } });
+  const label = (x, y, text, options = '') => `<text x="${x}" y="${y}" ${options}>${text}</text>`;
+
+  function truck(x, y, color = '#527e9b', scale = 1) {
+    return `<g transform="translate(${x} ${y}) scale(${scale})"><rect x="0" y="0" width="78" height="36" rx="4" fill="${color}" stroke="#335b73" stroke-width="1.5"/><path d="M78 9h23l16 14v13H78Z" fill="#e4edf1" stroke="#335b73" stroke-width="1.5"/><path d="M85 13h13l10 10H85Z" fill="#9dc1d0"/><circle cx="20" cy="38" r="8" fill="#344f5a"/><circle cx="96" cy="38" r="8" fill="#344f5a"/><circle cx="20" cy="38" r="3" fill="#c9d9dd"/><circle cx="96" cy="38" r="3" fill="#c9d9dd"/></g>`;
+  }
+
+  function warehouse(x, y, width, height, text) {
+    return `<g><rect x="${x + 6}" y="${y + 7}" width="${width}" height="${height}" rx="5" fill="#c6d2d6" opacity=".5"/><rect x="${x}" y="${y}" width="${width}" height="${height}" rx="5" fill="#d7e1e5" stroke="#91a9b4" stroke-width="2"/><path d="M${x} ${y + height / 2}H${x + width}" stroke="#a7bbc3" stroke-width="2"/><path d="M${x + width / 2} ${y}V${y + height}" stroke="#bdccd2" stroke-width="1.5"/><rect x="${x + width / 2 - 25}" y="${y + height - 10}" width="50" height="10" fill="#7d9ca9"/>${label(x + width / 2, y + height / 2 - 8, text, 'text-anchor="middle" fill="#3c5f71" font-size="18" font-weight="600"')}</g>`;
+  }
+
+  function construction() {
+    return {
+      title: '施工场景 · 材料进场与卸货', a: '卸货口 A', b: '临时堆场 B',
+      body: `<path d="M30 63H365V187H30Z" fill="#edf0e9" stroke="#d3ddd2" stroke-width="2"/>
+      ${warehouse(65, 85, 250, 80, '材料仓库')}
+      <rect x="479" y="70" width="319" height="128" rx="5" fill="#ede4d6" stroke="#c8b89d" stroke-width="2"/>
+      <path d="M501 94H773V173H501Z M550 94V173 M605 94V173 M661 94V173 M717 94V173 M501 134H773" fill="none" stroke="#b8a98e" stroke-width="2"/>
+      ${label(638, 121, '在建建筑轮廓', 'text-anchor="middle" fill="#7a705b" font-size="18"')}
+      <path d="M36 231H786" stroke="#b3c0c3" stroke-width="53" fill="none"/>
+      <path d="M36 231H786" stroke="#f9faf7" stroke-width="47" fill="none"/>
+      <path d="M36 231H786" stroke="#d0b87d" stroke-width="2" stroke-dasharray="12 10" fill="none"/>
+      <path d="M187 175V215M612 253V294" stroke="#f9faf7" stroke-width="37" fill="none"/>
+      <rect x="199" y="286" width="247" height="105" rx="6" fill="#e6ddc9" stroke="#c5b89e" stroke-width="2"/>
+      <g fill="#b4a386" stroke="#9c8f78" stroke-width="1"><rect x="226" y="305" width="47" height="23" rx="2"/><rect x="226" y="338" width="47" height="23" rx="2"/><rect x="350" y="304" width="65" height="24" rx="2"/><rect x="350" y="338" width="65" height="24" rx="2"/></g>
+      <rect x="519" y="307" width="260" height="84" rx="5" fill="#eef1e9" stroke="#d1d9c8" stroke-width="2"/>
+      ${label(651, 364, '现场物料准备区', 'text-anchor="middle" fill="#77876b" font-size="18"')}
+      ${truck(350, 210, '#6291b0', .95)}
+      ${label(87, 269, '进场道路', 'fill="#6d7e85" font-size="17"')}
+      <g fill="#6c9c8b"><circle cx="75" cy="341" r="18"/><circle cx="115" cy="366" r="14"/><circle cx="84" cy="389" r="12"/></g>`
+    };
+  }
+
+  function agriculture() {
+    let fields = '';
+    for (const [index, x, y, width, height] of [[0, 38, 68, 177, 121], [1, 229, 68, 174, 121], [2, 419, 68, 190, 121]]) {
+      fields += `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="4" fill="${index === 1 ? '#e6daa5' : '#d8dfae'}" stroke="#aabb86" stroke-width="2"/>`;
+      for (let line = x + 13; line < x + width; line += 17) fields += `<path d="M${line} ${y + 6}V${y + height - 6}" stroke="#b1be89" opacity=".65"/>`;
+    }
+    return {
+      title: '农业场景 · 收割转运与晾晒', a: '转运点 A', b: '晾晒场 B',
+      body: `${fields}${label(320, 130, '待收割田块', 'text-anchor="middle" fill="#727e51" font-size="19" font-weight="600"')}
+      <path d="M27 228H791" stroke="#acb8a0" stroke-width="49"/><path d="M27 228H791" stroke="#f6f4e8" stroke-width="43"/><path d="M27 228H791" stroke="#c6bd9b" stroke-width="2" stroke-dasharray="12 10"/>
+      <path d="M609 75V219M609 249V385" stroke="#e7e4cf" stroke-width="29"/>
+      <rect x="181" y="285" width="260" height="109" rx="5" fill="#e6d5a6" stroke="#bdab7c" stroke-width="2"/>
+      <g stroke="#ceb87f" stroke-width="2">${[305, 325, 345, 365].map(y => `<path d="M196 ${y}H427"/>`).join('')}</g>
+      ${warehouse(507, 310, 230, 83, '粮食仓库')}
+      <g transform="translate(432 170)"><rect x="8" y="0" width="50" height="27" rx="5" fill="#739b6a" stroke="#4d7550" stroke-width="2"/><rect x="-6" y="22" width="77" height="15" rx="3" fill="#98b779"/><rect x="42" y="-14" width="22" height="24" rx="3" fill="#b8d1ca" stroke="#4d7550" stroke-width="2"/><circle cx="17" cy="35" r="10" fill="#486453"/><circle cx="58" cy="35" r="8" fill="#486453"/></g>
+      ${truck(666, 210, '#9a9f72', .73)}
+      ${label(63, 268, '田头道路', 'fill="#71816d" font-size="17"')}
+      <path d="M46 307C87 293 100 329 133 325S151 358 136 384" fill="none" stroke="#a8c8ce" stroke-width="15"/>
+      ${label(54, 411, '灌排渠示意', 'fill="#6b99a1" font-size="16"')}`
+    };
+  }
+
+  function livestock() {
+    let bales = '';
+    for (let row = 0; row < 2; row++) for (let col = 0; col < 5; col++) {
+      const x = 80 + col * 43, y = 104 + row * 41;
+      bales += `<g><circle cx="${x}" cy="${y}" r="15" fill="#d8bd77" stroke="#b19858" stroke-width="1.6"/><circle cx="${x}" cy="${y}" r="8" fill="none" stroke="#bea365" stroke-width="1.2"/></g>`;
+    }
+    return {
+      title: '畜牧场景 · 饲草运输与入库', a: '卸车点 A', b: '料库 B',
+      body: `<rect x="37" y="72" width="302" height="121" rx="6" fill="#e9e0b6" stroke="#c9bd8c" stroke-width="2"/>${bales}
+      ${label(178, 179, '饲草待运区', 'text-anchor="middle" fill="#8f7d46" font-size="18"')}
+      ${warehouse(462, 76, 317, 111, '牛舍')}
+      <g fill="#c2cfcc" stroke="#9bafaa" stroke-width="1.4">${[489, 541, 593, 645, 697, 749].map(x => `<rect x="${x}" y="143" width="20" height="28" rx="2"/>`).join('')}</g>
+      <path d="M31 237H793" stroke="#b2bcb4" stroke-width="53"/><path d="M31 237H793" stroke="#f7f7ed" stroke-width="47"/><path d="M31 237H793" stroke="#c3b887" stroke-width="2" stroke-dasharray="12 10"/>
+      <path d="M297 257V316M637 256V368" stroke="#f7f7ed" stroke-width="34"/>
+      ${warehouse(185, 290, 253, 103, '饲草料库')}
+      <rect x="515" y="303" width="257" height="91" rx="6" fill="#d7e4d5" stroke="#afc4aa" stroke-width="2"/>
+      ${label(646, 358, '场区准备与周转区', 'text-anchor="middle" fill="#6f8a69" font-size="17"')}
+      ${truck(353, 216, '#a6a16c', .92)}
+      <g fill="#d5ba71" stroke="#a78c50" stroke-width="1.2"><circle cx="386" cy="212" r="10"/><circle cx="411" cy="212" r="10"/><circle cx="436" cy="212" r="10"/></g>
+      ${label(69, 277, '运输通道', 'fill="#6a7f73" font-size="17"')}
+      <g fill="#86a68a"><circle cx="75" cy="350" r="18"/><circle cx="110" cy="378" r="15"/></g>`
+    };
+  }
+
+  function weatherGrid(fine, rainA, rainB) {
+    const top = 60, height = 354, width = 800, left = 23;
+    const maximum = Math.max(1, rainA, rainB);
+    const size = fine ? 80 : 400;
+    let cells = '';
+    for (let y = top; y < top + height; y += size) for (let x = left; x < left + width; x += size) {
+      const cellWidth = Math.min(size, left + width - x), cellHeight = Math.min(size, top + height - y);
+      const cx = x + cellWidth / 2, cy = y + cellHeight / 2;
+      const intensity = fine
+        ? rainA * Math.exp(-(((cx - POINTS.a.x) / 185) ** 2 + ((cy - POINTS.a.y) / 160) ** 2))
+          + rainB * Math.exp(-(((cx - POINTS.b.x) / 150) ** 2 + ((cy - POINTS.b.y) / 155) ** 2))
+        : (rainA + rainB) / 2;
+      const alpha = fine ? Math.min(0.34, 0.025 + intensity / maximum * 0.29) : 0.14;
+      cells += `<rect x="${x}" y="${y}" width="${cellWidth}" height="${cellHeight}" fill="#298bd5" fill-opacity="${alpha.toFixed(3)}" stroke="#4484ba" stroke-opacity="${fine ? '.25' : '.4'}" stroke-width="${fine ? '1' : '2'}"/>`;
+    }
+    return `<g pointer-events="none">${cells}</g>`;
+  }
+
+  function point(slot, title, selected, rain, fine) {
+    const { x, y } = POINTS[slot];
+    const pillWidth = 184, pillX = slot === 'a' ? 688 : x - 87, pillY = y + 28;
+    return `<g data-point="${slot}" role="button" tabindex="0" aria-label="选择${slot.toUpperCase()}点" aria-pressed="${selected}" cursor="pointer">
+      <title>${esc(title)}${selected ? ' 当前选中' : ''}</title>
+      <circle class="point-halo" cx="${x}" cy="${y}" r="28" fill="${selected ? '#f1c969' : '#ffffff'}" fill-opacity="${selected ? '.5' : '.6'}"/>
+      <circle class="point-core" cx="${x}" cy="${y}" r="19" fill="${selected ? '#1765a8' : '#ffffff'}" stroke="${selected ? '#ffffff' : '#4d87af'}" stroke-width="3"/>
+      ${label(x, y + 7, slot.toUpperCase(), `text-anchor="middle" fill="${selected ? '#ffffff' : '#2c648b'}" font-size="21" font-weight="700"`)}
+      ${slot === 'a' ? `<path d="M${x + 19} ${y + 10}L${pillX} ${pillY + 9}" fill="none" stroke="#8eafc5" stroke-width="1.5"/>` : ''}
+      <rect x="${pillX}" y="${pillY}" width="${pillWidth}" height="${fine ? 57 : 33}" rx="7" fill="#ffffff" fill-opacity=".96" stroke="#b5cddd"/>
+      ${label(pillX + 12, pillY + 23, esc(title), 'fill="#345d76" font-size="17" font-weight="600"')}
+      ${fine ? label(pillX + 12, pillY + 46, `${rain.toFixed(1)} mm/h`, 'fill="#176aa6" font-size="17"') : ''}
+    </g>`;
+  }
+
+  function render(scene = 'construction', options = {}) {
+    const factories = { construction, agriculture, livestock };
+    const type = Object.prototype.hasOwnProperty.call(factories, scene) ? scene : 'construction';
+    const sceneInfo = factories[type]();
+    const slot = options.slot === 'b' ? 'b' : 'a';
+    const fine = options.fine === true;
+    const peak = number(options.peakRain, 6.2), neighbor = number(options.neighborRain, 0.5);
+    const rainA = slot === 'a' ? peak : neighbor, rainB = slot === 'b' ? peak : neighbor;
+    const timeLabel = esc(options.timeLabel || '14:30');
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" role="group" aria-label="${sceneInfo.title}，作业布局与天气均为示意" style="display:block;width:100%;height:auto;font-family:'Hiragino Sans GB','Microsoft YaHei',sans-serif">
+      <style>g[data-point]:focus{outline:none}g[data-point]:focus .point-halo{fill:#e8b750;fill-opacity:.75}g[data-point]:hover .point-core{stroke:#e5b655;stroke-width:4}</style>
+      <rect width="900" height="480" rx="12" fill="#f4f6ef"/>
+      <path d="M849 50C818 113 869 172 840 239S856 361 824 419" fill="none" stroke="#b1cbd1" stroke-width="28"/>
+      <path d="M849 50C818 113 869 172 840 239S856 361 824 419" fill="none" stroke="#d9e9e9" stroke-width="18"/>
+      <path d="M24 416H812" stroke="#d9e1d3" stroke-width="2"/>
+      ${sceneInfo.body}
+      ${weatherGrid(fine, rainA, rainB)}
+      <path d="M${POINTS.b.x + 25} ${POINTS.b.y - 12}Q456 274 ${POINTS.a.x - 25} ${POINTS.a.y + 4}" fill="none" stroke="#6d8ca2" stroke-width="2.5" stroke-dasharray="7 7" opacity=".7"/>
+      ${point('a', sceneInfo.a, slot === 'a', rainA, fine)}
+      ${point('b', sceneInfo.b, slot === 'b', rainB, fine)}
+      <rect x="0" y="0" width="900" height="53" fill="#f4f6ef" fill-opacity=".96"/>
+      ${label(26, 34, sceneInfo.title, 'fill="#304f62" font-size="20" font-weight="600"')}
+      ${label(868, 34, `${fine ? '细网格示意' : '粗网格示意'} · ${timeLabel}`, 'text-anchor="end" fill="#477a9f" font-size="17"')}
+      <rect x="0" y="428" width="900" height="52" fill="#f4f6ef" fill-opacity=".98"/>
+      ${label(26, 459, '作业布局与天气均为示意', 'fill="#6c828d" font-size="16"')}
+      ${label(868, 459, '点击 A / B 比较相近作业点', 'text-anchor="end" fill="#42769c" font-size="16"')}
+    </svg>`;
+  }
+
+  global.SkySceneArt = Object.freeze({ render });
+})(typeof window !== 'undefined' ? window : globalThis);
+
+
+(()=>{'use strict';
+const $=id=>document.getElementById(id),$$=s=>Array.from(document.querySelectorAll(s));
+const icon=(name)=>`<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const KEY='skysight-precision-scenes-v2'; let storageOK=true;
+const scenes={construction:{label:'工程施工',icon:'construction',tasks:['建材运输与卸货','卸货前遮盖准备','施工物料交接'],title:'材料到场前，先想好遮盖安排',guide:'结合到场时段查看降水变化，再与现场负责人确认人员、车辆和物料准备。',note:'留意降水较强时段，提前考虑材料遮盖与运输安排。'},agriculture:{label:'农业作业',icon:'leaf',tasks:['收割与田头转运','粮食晾晒与收储','农机转场安排'],title:'收割之后，晾晒的时间也要一起看',guide:'把收割、运输和晾晒的时段放在一起比较，再结合田间情况确定安排。',note:'关注收割后与运输途中的降水变化，结合田间情况安排。'},livestock:{label:'畜牧管理',icon:'farm',tasks:['饲草装车与转运','饲草卸车与入库','场区物料准备'],title:'从收割到收储，关注完整的一段天气',guide:'饲草运输与收储相互衔接，查看所需时段的风雨和温度，再核对场区条件。',note:'关注饲草转运与收储时段的风雨变化，核对场区准备。'}};
+const locations=[{"id": "site-a", "scene": "construction", "name": "郑州经开区附近 · 材料卸货情景 A", "short": "卸货口 A", "lat": 34.716, "lng": 113.805}, {"id": "site-b", "scene": "construction", "name": "郑州经开区附近 · 临时堆场情景 B", "short": "临时堆场 B", "lat": 34.7188, "lng": 113.796}, {"id": "farm-a", "scene": "agriculture", "name": "中牟县附近 · 田头转运情景 A", "short": "田头转运点 A", "lat": 34.726389, "lng": 114.010833}, {"id": "farm-b", "scene": "agriculture", "name": "中牟县附近 · 晾晒收储情景 B", "short": "晾晒场 B", "lat": 34.7276, "lng": 114.0188}, {"id": "ranch-a", "scene": "livestock", "name": "荥阳市附近 · 饲草卸车情景 A", "short": "卸车点 A", "lat": 34.766667, "lng": 113.35}, {"id": "ranch-b", "scene": "livestock", "name": "荥阳市附近 · 料库准备情景 B", "short": "料库 B", "lat": 34.7701, "lng": 113.3595}];
+const metrics={rain:{name:'降水强度',unit:'mm/h',max:100,default:2},wind:{name:'风速',unit:'m/s',max:100,default:5},temp:{name:'气温',unit:'°C',max:60,default:28}};
+const defaults=()=>({pro:true,grid:'fine',step:10,scene:'construction',location:'site-a',task:'建材运输与卸货',day:0,start:13,end:16,favorites:['site-a'],reminders:[]});
+let state=defaults();
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&typeof saved==='object'){state.pro=saved.pro===true;state.grid=state.pro&&saved.grid==='fine'?'fine':'coarse';state.step=state.pro&&saved.step===10?10:60;state.scene=scenes[saved.scene]?saved.scene:'construction';state.location=locations.some(l=>l.id===saved.location&&l.scene===state.scene)?saved.location:locations.find(l=>l.scene===state.scene).id;state.task=scenes[state.scene].tasks.includes(saved.task)?saved.task:scenes[state.scene].tasks[0];state.day=saved.day===1?1:0;state.start=Number.isInteger(saved.start)&&saved.start>=6&&saved.start<=20?saved.start:8;state.end=Number.isInteger(saved.end)&&saved.end>=7&&saved.end<=21?saved.end:17;state.favorites=Array.isArray(saved.favorites)?[...new Set(saved.favorites.filter(id=>locations.some(l=>l.id===id)))].slice(0,state.pro?3:1):['site-a'];state.reminders=Array.isArray(saved.reminders)?saved.reminders.filter(r=>r&&/^r[a-z0-9]{5,40}$/.test(r.id)&&typeof r.name==='string'&&r.name.length<=40&&locations.some(l=>l.id===r.location)&&metrics[r.metric]&&Number.isFinite(r.threshold)&&r.threshold>=0&&r.threshold<=metrics[r.metric].max&&Number.isInteger(r.start)&&r.start>=6&&r.start<=20&&Number.isInteger(r.end)&&r.end>r.start&&r.end<=21&&(r.day===0||r.day===1)).slice(0,30).map(r=>({...r,enabled:r.enabled!==false})):[];}}catch(e){storageOK=false;}
+let page='workspace',industry='energy',energyWeather='mixed',capacity=30,railIndex=0,aviationHour=12,reminderContext=null,toastTimer=null,lastFocus=null;
+const loc=()=>locations.find(l=>l.id===state.location), validRange=()=>state.end>state.start;
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));storageOK=true;}catch(e){storageOK=false;toast('浏览器未允许本地保存，本次体验仍可使用。');}}
+function toast(text){clearTimeout(toastTimer);$('toast').textContent=text;$('toast').classList.add('show');toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3500);}
+function openDialog(id){lastFocus=document.activeElement;$(id).showModal();}
+function closeDialog(d){d.close();if(lastFocus?.isConnected)lastFocus.focus();}
+$$('[data-close]').forEach(b=>b.addEventListener('click',()=>closeDialog(b.closest('dialog'))));
+$$('dialog').forEach(d=>{d.addEventListener('cancel',e=>{e.preventDefault();closeDialog(d);});d.addEventListener('click',e=>{const r=d.getBoundingClientRect();if(e.target===d&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))closeDialog(d);});});
+const hh=h=>String(h).padStart(2,'0')+':00';const dayText=d=>`10月${26+d}日`;
+const rainBase=[.2,.1,0,0,0,0,.1,0,0,0,.2,.5,1.5,3.8,6.2,4.8,2.3,.8,.3,.1,0,0,0,0];
+function populateControls(){const sc=scenes[state.scene];$('location').innerHTML=locations.filter(l=>l.scene===state.scene).map(l=>`<option value="${l.id}">${l.name}</option>`).join('');$('location').value=state.location;$('task').innerHTML=sc.tasks.map(t=>`<option>${t}</option>`).join('');$('task').value=state.task;$('day').value=state.day;$('start').value=state.start;$('end').value=state.end;$$('[data-scene]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scene===state.scene)));}
+for(let h=6;h<=20;h++)$('start').insertAdjacentHTML('beforeend',`<option value="${h}">${hh(h)}</option>`);for(let h=7;h<=21;h++)$('end').insertAdjacentHTML('beforeend',`<option value="${h}">${hh(h)}</option>`);
+function renderMembership(){const t=state.pro?'专业体验已开启':'天气更细一些，<br>安排从容一些。';$('member-side-title').innerHTML=t;$('member-side-caption').textContent=state.pro?'本机体验 · 不收费 · 可随时结束':'多地点收藏 · 精细视图体验';$('member-side-button').textContent=state.pro?'查看体验权益':'体验专业会员';$('profile-plan').textContent=(state.pro?'专业体验':'基础体验')+' · 本机保存';$('favorite-plan').textContent=state.pro?'专业体验 · 3个地点':'基础体验 · 1个地点';$('start-pro').textContent=state.pro?'继续体验':'开启专业体验 · 不收费';$('stop-pro').hidden=!state.pro;}
+/* This file is inserted inside the existing application closure. */
+const P=window.SkyPrecision;
+const mm=value=>`${String(Math.floor(value/60)).padStart(2,'0')}:${String(Math.round(value%60)).padStart(2,'0')}`;
+const slot=()=>state.location.endsWith('b')?'b':'a';
+let probeHour=14,mapMode='live',lastMapUrl='',lastGrid=state.grid,lastSceneKey='',plotMinute=870;
+const mission={
+ construction:{title:'一车建材，到场之后怎么安排？',subtitle:'施工物料进场 · 从仓库装车，到现场卸货与遮盖准备',pointA:'卸货口 A',pointB:'临时堆场 B',roles:'仓库调度、运输司机、现场收料人员共同核对安排。',steps:[['出发前','对照运输与到场时段，核对车次、司机和收料人员。'],['到场卸货','单看14点的区域均值不够，还要看卸货口所在的10分钟时段。'],['物料暂存','提前核对遮盖物、卸货区域和临时堆场，结合现场情况安排。']],checks:['与司机确认到场时段','核对现场收料人员和卸货位置','检查遮盖物与临时堆场准备']},
+ agriculture:{title:'收割之后，还要把转运与晾晒连起来。',subtitle:'粮食收储 · 从田块、田头转运点，到晾晒场',pointA:'田头转运点 A',pointB:'晾晒场 B',roles:'种植户、农机作业人员、运输与收储人员核对任务衔接。',steps:[['收割前','同时查看田块和后续转运时段，而不是只看当天晴雨。'],['田头转运','比较转运点与晾晒场的局部变化，核对车辆与接收准备。'],['晾晒与收储','降水信息仅是一个输入，仍需结合粮食、地面和设备实际情况。']],checks:['核对收割与运输车辆衔接','确认晾晒场和接收人员安排','检查粮食防雨与暂存准备']},
+ livestock:{title:'饲草入库，关注的是完整的一段工作。',subtitle:'牧场物料收储 · 从饲草区装车，到场区卸车和料库',pointA:'卸车点 A',pointB:'料库 B',roles:'饲草供应、运输司机和牧场收储人员共同确认准备。',steps:[['装车前','查看装车到到场的连续时段，核对转运安排。'],['场区卸车','比较卸车点与料库的天气样例，提前明确接收位置。'],['入库准备','核对覆盖、库区通道与人员，依据实际物料及现场条件作决定。']],checks:['确认饲草装车和到场时段','核对库区通道与卸车位置','检查覆盖材料和入库人员准备']}
+};
+let taskChecks={construction:[],agriculture:[],livestock:[]};
+try{const cached=JSON.parse(localStorage.getItem(KEY+'-prep')||'null');if(cached&&typeof cached==='object')for(const key of Object.keys(taskChecks))taskChecks[key]=Array.isArray(cached[key])?cached[key].filter(i=>Number.isInteger(i)&&i>=0&&i<3):[];}catch(e){}
+
+function series(locationId=state.location,day=state.day){const l=locations.find(x=>x.id===locationId),samples=P.make(l.scene,locationId.endsWith('b')?'b':'a',day).hourly;return Array.from({length:24},(_,hour)=>({...samples.find(p=>p.hour===hour)||samples[hour<6?0:14],hour}));}
+function valuesInWindow(context=state){const l=locations.find(x=>x.id===context.location);return P.make(l.scene,context.location.endsWith('b')?'b':'a',context.day).fine.filter(p=>p.minute>=context.start*60&&p.minute<context.end*60);}
+function comparison(){return P.compare(state.scene,slot(),state.day,probeHour);}
+function mapUrl(){const l=loc(),padX=.023,padY=.014;const q=new URLSearchParams({bbox:[l.lng-padX,l.lat-padY,l.lng+padX,l.lat+padY].join(','),layer:'mapnik',marker:[l.lat,l.lng].join(',')});return 'https://www.openstreetmap.org/export/embed.html?'+q.toString();}
+function setMapMode(mode){mapMode=mode;renderMap();}
+function renderMap(){
+ const c=comparison();
+ if(state.grid!==lastGrid){mapMode='layout';lastGrid=state.grid;}
+ $('map-location').textContent=loc().name;
+ $('favorite-location').setAttribute('aria-pressed',String(state.favorites.includes(state.location)));
+ $('favorite-location').setAttribute('aria-label',state.favorites.includes(state.location)?'取消收藏当前地点':'收藏当前地点');
+ $('map-task').textContent=state.task;
+ const sample=P.make(state.scene,slot(),state.day).fine.find(p=>p.minute===600);
+ $('map-temp').textContent=Math.round(sample.temp)+'°';$('map-weather').textContent='10:00 合成天气样例';
+ $('map-status').textContent=mapMode==='live'?'真实底图 · 需联网':'作业布局与天气均为示意';
+ $('map-frame').hidden=mapMode!=='live';$('scene-map').hidden=mapMode!=='layout';$('map-weather-chip').hidden=mapMode!=='live';$('live-map-note').hidden=mapMode!=='live';
+ $$('[data-map-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapMode===mapMode)));
+ const next=mapUrl();if(mapMode==='live'&&next!==lastMapUrl){$('map-frame').src=next;lastMapUrl=next;}
+ $('scene-map').innerHTML=window.SkySceneArt.render(state.scene,{slot:slot(),fine:state.grid==='fine',peakRain:c.peakRain,neighborRain:c.neighborRainAtPointMinute,timeLabel:mm(c.pointMinute)});
+ $$('[data-point]').forEach(b=>{const choose=()=>{const next=locations.find(l=>l.scene===state.scene&&l.id.endsWith(b.dataset.point));state.location=next.id;persist();renderWorkspace();};b.addEventListener('click',choose);b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose();}});});
+ $$('[data-grid]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.grid===state.grid)));
+}
+
+function renderComparison(){const c=comparison(),m=mission[state.scene];$('comparison-hour').value=probeHour;$('coarse-value').textContent=c.coarseRain.toFixed(1);$('fine-value').textContent=c.peakRain.toFixed(1);$('comparison-period').textContent=`${hh(probeHour)}—${hh(probeHour+1)}`;
+ $('fine-period').textContent=c.wetStart===null?'该小时未出现 ≥2 mm/h 的示例雨段':`${mm(c.wetStart)}—${mm(c.wetEnd)} 降水较集中`;
+ $('fine-task').textContent=state.task;
+ const a=P.make(state.scene,'a',state.day).fine.find(p=>p.minute===c.pointMinute),b=P.make(state.scene,'b',state.day).fine.find(p=>p.minute===c.pointMinute);
+ $('point-contrast').innerHTML=`<strong>同一时刻 ${mm(c.pointMinute)}</strong><span>${m.pointA}：<b>${a.rain.toFixed(1)}</b> mm/h</span><span>${m.pointB}：<b>${b.rain.toFixed(1)}</b> mm/h</span><span>同一组演示数据，两点也可能不同。</span>`;
+ $('coarse-description').textContent='把近邻两点、同一小时的数据合并，只保留一个区域平均值。';
+ $('fine-description').textContent='分开看具体作业点与10分钟时段，能在样例里定位更短的雨段。';
+}
+
+function renderWorkspace(){populateControls();renderMembership();
+ const sceneKey=state.scene+'|'+state.day;if(sceneKey!==lastSceneKey){const peak=P.make(state.scene,slot(),state.day).fine.reduce((a,b)=>a.rain>=b.rain?a:b);probeHour=Math.floor(peak.minute/60);lastSceneKey=sceneKey;}
+ const valid=validRange();$('range-error').hidden=valid;$('add-reminder').disabled=!valid;$('export-workspace').disabled=!valid;$('date-number').textContent=26+state.day;$('date-weekday').textContent=state.day?'TUESDAY':'MONDAY';
+ const summary=valid?P.windowSummary(state.scene,slot(),state.day,state.start,state.end):null;
+ $('best-window').textContent=summary&&summary.bestStart!==null?`${mm(summary.bestStart)}—${mm(summary.bestEnd)}`:valid?'暂无连续低降水段':'请调整时段';
+ $('window-caption').textContent=valid?`${dayText(state.day)} · ${hh(state.start)}—${hh(state.end)} · ${state.task}`:'结束时间需要晚于开始时间。';
+ $('max-rain').textContent=summary?summary.maxRain.toFixed(1):'—';$('max-wind').textContent=summary?summary.maxWind.toFixed(1):'—';
+ const c=comparison();$('window-note').textContent=c.wetStart===null?scenes[state.scene].note:`${mm(c.wetStart)}—${mm(c.wetEnd)} 是该小时里更集中的示例雨段。把这段变化与${state.task}的时间一起核对。`;
+ $('scene-tag').textContent=scenes[state.scene].label;$('task-guide-title').textContent=scenes[state.scene].title;$('task-guide-body').textContent=scenes[state.scene].guide;$('task-icon').innerHTML=`<use href="#i-${scenes[state.scene].icon}"/>`;
+ $$('[data-step]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.step===state.step)));
+ renderComparison();renderMap();renderForecast();renderScenario();renderRecent();
+}
+
+function renderForecast(){const svg=$('forecast-chart'),c=comparison(),W=Math.max(620,svg.clientWidth||900),L=54,R=25,T=30,B=186,x=i=>L+(i+.5)/6*(W-L-R),y=v=>B-v/8*(B-T);svg.setAttribute('viewBox',`0 0 ${W} 250`);
+ let grid='';for(let v=0;v<=8;v+=2)grid+=`<path d="M${L} ${y(v)}H${W-R}" stroke="#e0e7f0"/><text x="${L-12}" y="${y(v)+5}" fill="#6d839f" text-anchor="end" font-size="15">${v}</text>`;
+ const band=`<rect x="${L}" y="${y(c.coarseRain)}" width="${W-L-R}" height="${B-y(c.coarseRain)}" fill="#b9c7d8" opacity=".35"/><path d="M${L} ${y(c.coarseRain)}H${W-R}" stroke="#7e94af" stroke-dasharray="5 4" stroke-width="2"/>`;
+ const barW=Math.min(52,(W-L-R)/9),fine=state.step===10?c.fine.map((p,i)=>`<rect x="${x(i)-barW/2}" y="${y(p.rain)}" width="${barW}" height="${Math.max(2,B-y(p.rain))}" rx="5" fill="${p.rain>=2?'#f0ac43':'#4d8df0'}"/><text x="${x(i)}" y="${Math.max(20,y(p.rain)-10)}" text-anchor="middle" fill="${p.rain>=2?'#a96c20':'#376fb4'}" font-size="16" font-weight="600">${p.rain.toFixed(1)}</text>`).join(''):'';
+ const labels=c.fine.map((p,i)=>`<text x="${x(i)}" y="220" text-anchor="middle" font-size="15" fill="#5f7c9e">${mm(p.minute)}</text>`).join('');
+ svg.innerHTML=`<title>${state.step===10?'作业点10分钟值与区域小时均值对比':'区域小时均值'}</title>${grid}<text x="10" y="17" font-size="13" fill="#6d839f">mm/h</text>${band}${fine}${labels}<line id="chart-cursor" y1="25" y2="193" x1="0" x2="0" stroke="#1e5ead" stroke-dasharray="3 4" opacity="0"/>`;
+ $('forecast-subtitle').textContent=state.step===10?'10分钟原生合成点与区域小时均值对照，来自同一份样例数据。':'区域小时均值把地点与小时内的变化合并；切到10分钟查看样例细节。';
+ $('chart-detail').textContent=state.step===10?'点击柱形或用左右方向键读取时刻':'当前显示区域小时均值；10分钟视图展示样例细节。';
+}
+function showPlotMinute(minute){const c=comparison(),index=Math.max(0,Math.min(5,Math.round((minute-probeHour*60)/10))),v=c.fine[index],svg=$('forecast-chart'),W=Math.max(620,svg.clientWidth||900),x=54+(index+.5)/6*(W-79),cursor=$('chart-cursor');plotMinute=v.minute;cursor.setAttribute('x1',x);cursor.setAttribute('x2',x);cursor.setAttribute('opacity',1);$('chart-detail').textContent=`${mm(v.minute)} · 本点 ${v.rain.toFixed(1)} mm/h · 区域小时均值 ${c.coarseRain.toFixed(1)} mm/h`;
+}
+$('forecast-chart').addEventListener('pointerdown',e=>{const r=e.currentTarget.getBoundingClientRect(),W=Math.max(620,r.width),index=Math.floor(((e.clientX-r.left)-54)/(W-79)*6);showPlotMinute(probeHour*60+Math.max(0,Math.min(5,index))*10);});
+$('forecast-chart').addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();showPlotMinute(e.key==='Home'?probeHour*60:e.key==='End'?probeHour*60+50:plotMinute+(e.key==='ArrowRight'?10:-10));}});
+window.addEventListener('resize',()=>requestAnimationFrame(()=>{if(!$('workspace-page').hidden)renderForecast();}));
+$('comparison-hour').addEventListener('change',()=>{probeHour=+$('comparison-hour').value;plotMinute=probeHour*60;renderComparison();renderMap();renderForecast();});
+$$('[data-map-mode]').forEach(b=>b.addEventListener('click',()=>setMapMode(b.dataset.mapMode)));
+$('show-layout').addEventListener('click',()=>setMapMode('layout'));
+$('show-precision').addEventListener('click',()=>{$('precision-panel').scrollIntoView({behavior:'smooth',block:'start'});$('comparison-hour').focus({preventScroll:true});});
+
+function renderScenario(){const m=mission[state.scene];$('trial-result').hidden=true;$('mission-title').textContent=m.title;$('mission-subtitle').textContent=m.subtitle;$('mission-steps').innerHTML=m.steps.map((s,i)=>`<article class="mission-step"><span class="step-no">STEP 0${i+1}</span><strong>${s[0]}</strong><p>${s[1]}</p></article>`).join('');$('preparation-list').innerHTML=m.checks.map((s,i)=>`<label class="check-line"><input type="checkbox" data-check="${i}" ${taskChecks[state.scene].includes(i)?'checked':''}>${s}</label>`).join('');$('task-role').textContent=m.roles+' 这里是演示流程，不代表已有客户项目或作业许可。';updateProgress();$$('[data-check]').forEach(input=>input.addEventListener('change',()=>{const index=+input.dataset.check;taskChecks[state.scene]=input.checked?[...new Set([...taskChecks[state.scene],index])]:taskChecks[state.scene].filter(x=>x!==index);try{localStorage.setItem(KEY+'-prep',JSON.stringify(taskChecks));}catch(e){}updateProgress();}));}
+function updateProgress(){$('check-progress').textContent=`本机准备记录：${taskChecks[state.scene].length} / 3 项已勾选`;} 
+function matchInfo(r){if(!r.enabled)return '提醒已关闭';const hits=valuesInWindow(r).filter(p=>p[r.metric]>=r.threshold);return hits.length?`示例命中 ${hits.length} 个10分钟时段 · 首次 ${mm(hits[0].minute)}`:'所选时段内未命中示例阈值';}
+
+function simulatePlan(){const result=$('trial-result');result.hidden=false;if(!validRange()){result.textContent='先选择有效的工作开始和结束时间。';return;}const c=comparison(),duration=+$('trial-duration').value,summary=P.windowSummary(state.scene,slot(),state.day,state.start,state.end),planned=c.wetStart===null?probeHour*60:c.wetStart;
+ if(planned<state.start*60||planned+duration>state.end*60){result.textContent='当前关注小时不在完整作业时段内，先调整上方的工作时段或关注小时再比较。';return;}
+ if(summary.bestStart===null||summary.bestEnd-summary.bestStart<duration){result.textContent=`这个工作时段里，未找到连续${duration}分钟、降水强度＜0.5 mm/h的合成样例段。可以调整时段后重新比较。`;return;}
+ const fine=P.make(state.scene,slot(),state.day).fine,candidate=summary.bestStart,count=start=>fine.filter(p=>p.minute>=start&&p.minute<start+duration&&p.rain>=2).length;
+ result.innerHTML=`<div><span>原计划示例</span><strong>${mm(planned)}—${mm(planned+duration)}</strong><p>命中本次降水条件 ${count(planned)} 个10分钟区间</p></div><div><span>可比较的候选时段</span><strong>${mm(candidate)}—${mm(candidate+duration)}</strong><p>命中本次降水条件 ${count(candidate)} 个10分钟区间</p></div><small>任务：${escapeHTML(state.task)}。条件仅为本次演示中的降水强度≥2 mm/h；这个比较不代表安全或适宜性判断，实际安排由现场人员确认。</small>`;
+}
+$('simulate-plan').addEventListener('click',simulatePlan);
+$('trial-duration').addEventListener('change',()=>{if(!$('trial-result').hidden)simulatePlan();});
+
+function exportWorkspace(){if(!validRange())return;const c=comparison(),rows=valuesInWindow().map(v=>`${mm(v.minute)}\t${v.rain.toFixed(2)}\t${v.temp.toFixed(1)}\t${v.wind.toFixed(1)}`).join('\n'),m=mission[state.scene];download(`skysight 专业作业简报\n天气为原生10分钟合成样例，不是实测、实时预报或竞品成绩；不作实际作业决策。\n\n地区：${loc().name}\n地区参考选点：${loc().lat},${loc().lng}，不是客户项目坐标\n任务：${state.task}\n情景日期：2026年${dayText(state.day)}\n工作时段：${hh(state.start)}—${hh(state.end)}\n示例低降水段：${$('best-window').textContent}\n\n颗粒度对比 ${hh(probeHour)}—${hh(probeHour+1)}\n区域小时均值：${c.coarseRain.toFixed(4)} mm/h\n当前点10分钟峰值：${c.peakRain.toFixed(2)} mm/h\n集中雨段：${c.wetStart===null?'无':mm(c.wetStart)+'—'+mm(c.wetEnd)}\n两点空间平均+同一份10分钟数据的时间均值，不代表竞品真实质量。\n\n准备清单\n${m.checks.map((s,i)=>`${taskChecks[state.scene].includes(i)?'[已勾选]':'[未勾选]'} ${s}`).join('\n')}\n\n时间\t降水强度mm/h\t气温°C\t风速m/s\n${rows}\n\n底图来自OpenStreetMap，作业布局及路线为示意。提醒只在本机计算，无后台监测或推送。`,'skysight专业作业简报.txt');}
+
+function navigate(target,{focus=false}={}){page=target;['workspace','enterprise','reminders'].forEach(p=>$(p+'-page').hidden=p!==target);$$('[data-page]').forEach(b=>{if(b.dataset.page===target)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});$('breadcrumb').textContent='/ '+({workspace:'作业天气',enterprise:'企业服务',reminders:'提醒与地点'}[target]);if(target==='enterprise')renderEnterprise();if(target==='reminders')renderReminders();history.replaceState(null,'','#'+target);window.scrollTo({top:0,behavior:'auto'});if(focus)$('main-content').focus({preventScroll:true});}
+$$('[data-page]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.page,{focus:true})));document.querySelector('.brand').addEventListener('click',e=>{e.preventDefault();navigate('workspace',{focus:true});});
+$$('[data-scene]').forEach(b=>b.addEventListener('click',()=>{state.scene=b.dataset.scene;state.location=locations.find(l=>l.scene===state.scene).id;state.task=scenes[state.scene].tasks[0];persist();renderWorkspace();}));['location','task','day','start','end'].forEach(id=>$(id).addEventListener('change',()=>{state[id]=['day','start','end'].includes(id)?+$(id).value:$(id).value;persist();renderWorkspace();}));
+$$('[data-grid]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.grid==='fine'&&!state.pro){openDialog('member-dialog');return;}mapMode='layout';state.grid=b.dataset.grid;persist();renderMap();}));$$('[data-step]').forEach(b=>b.addEventListener('click',()=>{if(+b.dataset.step===10&&!state.pro){openDialog('member-dialog');return;}state.step=+b.dataset.step;persist();renderWorkspace();}));
+$('favorite-location').addEventListener('click',()=>{if(state.favorites.includes(state.location)){state.favorites=state.favorites.filter(id=>id!==state.location);toast('已取消收藏。');}else{if(state.favorites.length>=(state.pro?3:1)){openDialog('member-dialog');toast(state.pro?'最多收藏3个地点，请先移除一个。':'基础体验可收藏1个地点，专业体验可收藏3个。');return;}state.favorites.push(state.location);toast('地点已收藏，可在“提醒与地点”中切换。');}persist();renderMap();});
+$$('[data-member]').forEach(b=>b.addEventListener('click',()=>{renderMembership();openDialog('member-dialog');}));$('start-pro').addEventListener('click',()=>{state.pro=true;persist();renderMembership();closeDialog($('member-dialog'));toast('专业体验已开启，不收费。试试1 km网格和10分钟视图。');});$('stop-pro').addEventListener('click',()=>{state.pro=false;state.grid='coarse';state.step=60;state.favorites=state.favorites.slice(0,1);persist();renderWorkspace();renderReminders();closeDialog($('member-dialog'));toast('已结束专业体验，恢复基础视图并保留第一个收藏地点。');});
+function openReminder(){if(!validRange()){navigate('workspace');toast('请先把结束时间调整到开始时间之后。');return;}if(state.reminders.length>=30){toast('演示最多保存30条提醒，请先删除部分提醒。');return;}reminderContext={location:state.location,day:state.day,start:state.start,end:state.end,task:state.task};$('reminder-context').textContent=`${loc().name} · ${dayText(state.day)} ${hh(state.start)}—${hh(state.end)}`;$('reminder-name').value=state.task+' · 关注天气变化';$('metric').value='rain';$('threshold').value=2;updateThreshold();$('reminder-error').hidden=true;openDialog('reminder-dialog');$('reminder-name').focus();}
+$('add-reminder').addEventListener('click',openReminder);$('new-reminder').addEventListener('click',openReminder);
+function updateThreshold(){const m=metrics[$('metric').value];$('threshold-label').textContent='示例阈值 '+m.unit;$('threshold').max=m.max;$('threshold').min=0;}
+$('metric').addEventListener('change',()=>{$('threshold').value=metrics[$('metric').value].default;updateThreshold();});
+$('reminder-form').addEventListener('submit',e=>{e.preventDefault();const name=$('reminder-name').value.trim(),metric=$('metric').value,threshold=+$('threshold').value;if(!name||!Number.isFinite(threshold)||threshold<0||threshold>metrics[metric].max){$('reminder-error').textContent='请填写提醒名称，并输入有效范围内的阈值。';$('reminder-error').hidden=false;return;}state.reminders.push({id:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name,metric,threshold,enabled:true,...reminderContext});persist();renderReminders();renderRecent();closeDialog($('reminder-dialog'));toast(storageOK?'已保存到本机，可在“提醒与地点”查看示例命中结果。':'已保存在当前页面；浏览器未允许持久化保存。');});
+function renderRecent(){$('reminder-count').textContent=state.reminders.length;if(!state.reminders.length){$('recent-reminders').innerHTML=`<div class="task-strip"><div class="task-icon">${icon('bell')}</div><div><strong>把关注条件留在这里</strong><p>设置一个示例阈值，看看哪些时段会命中。</p></div></div>`;return;}$('recent-reminders').innerHTML=state.reminders.slice(-2).reverse().map(r=>`<div class="mini-reminder"><div><strong>${escapeHTML(r.name)}</strong><br><small>${metrics[r.metric].name} ≥ ${r.threshold} ${metrics[r.metric].unit}</small></div><span class="tag ${r.enabled?'orange':''}">${r.enabled?'本机已保存':'已关闭'}</span></div>`).join('');}
+function renderReminders(){renderMembership();renderRecent();$('reminder-summary').textContent=state.reminders.length?`${state.reminders.length} 条提醒 · ${state.reminders.filter(r=>r.enabled).length} 条已开启`:'从一项具体工作开始，设置你的第一个关注条件。';$('reminder-list').innerHTML=state.reminders.length?state.reminders.map(r=>{const l=locations.find(l=>l.id===r.location),m=metrics[r.metric];return `<article class="reminder-card"><div class="task-icon">${icon('bell')}</div><div class="reminder-body"><h3>${escapeHTML(r.name)}</h3><p>${l.name} · ${dayText(r.day)} ${hh(r.start)}—${hh(r.end)}<br>${m.name} ≥ ${r.threshold} ${m.unit}</p><span class="match ${r.enabled?'':'off'}">${matchInfo(r)}</span></div><div class="reminder-actions"><button class="toggle" role="switch" aria-label="开启或关闭 ${escapeHTML(r.name)}" aria-checked="${r.enabled}" data-toggle="${r.id}"><i></i></button><button class="delete-button" data-delete="${r.id}" aria-label="删除 ${escapeHTML(r.name)}">${icon('trash')}</button></div></article>`;}).join(''):`<div class="empty-state"><div class="empty-symbol">${icon('bell')}</div><h2>留住一个值得关注的变化</h2><p>比如材料运输前关注降水强度。设置条件后，这里会显示合成天气中哪些时段命中。</p><button class="button primary" id="empty-add">设置第一个提醒 ${icon('plus')}</button></div>`;$('empty-add')?.addEventListener('click',openReminder);$$('[data-toggle]').forEach(b=>b.addEventListener('click',()=>{const r=state.reminders.find(r=>r.id===b.dataset.toggle);r.enabled=!r.enabled;persist();renderReminders();}));$$('[data-delete]').forEach(b=>b.addEventListener('click',()=>{state.reminders=state.reminders.filter(r=>r.id!==b.dataset.delete);persist();renderReminders();toast('已删除这条本机提醒。');}));$('favorites-list').innerHTML=state.favorites.length?state.favorites.map(id=>{const l=locations.find(l=>l.id===id);return `<button class="favorite-chip" data-favorite-id="${id}">${l.name} ↗</button>`;}).join(''):'<span class="muted" style="font-size:11px">还没有收藏地点。回到作业天气，点击地图右上角的星标。</span>';$$('[data-favorite-id]').forEach(b=>b.addEventListener('click',()=>{state.location=b.dataset.favoriteId;state.scene=loc().scene;state.task=scenes[state.scene].tasks[0];persist();renderWorkspace();navigate('workspace',{focus:true});}));}
+function energySeries(){return Array.from({length:24},(_,h)=>{const sun=Math.max(0,Math.sin((h-6)/12*Math.PI));const cloud=energyWeather==='cloudy'?.52+.18*Math.cos(h*.8):.9+.08*Math.cos(h*.4);return +(capacity*sun*cloud).toFixed(2);});}
+function curveSVG(values,{color='#d2b479',max=30,unit='MW'}={}){const W=900,L=48,R=28,T=30,B=218,x=i=>L+i/23*(W-L-R),y=v=>B-v/max*(B-T),points=values.map((v,i)=>[x(i),y(v)]),path=points.map((p,i)=>(i?'L':'M')+p.join(',')).join(' ');let lines='';for(let i=0;i<4;i++){const v=max*i/3;lines+=`<path d="M${L} ${y(v)}H${W-R}" stroke="#e0e7f0"/><text x="${L-12}" y="${y(v)+3}" text-anchor="end" font-size="13" fill="#6a819e">${Math.round(v)}</text>`;}return `<svg class="business-chart" viewBox="0 0 900 260" role="img" aria-label="合成示例曲线，单位${unit}"><defs><linearGradient id="business-fill" x2="0" y2="1"><stop stop-color="${color}" stop-opacity=".24"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>${lines}<text x="12" y="16" font-size="12" fill="#6a819e">${unit}</text><path d="${path}L${x(23)},${B}L${x(0)},${B}Z" fill="url(#business-fill)"/><path d="${path}" fill="none" stroke="${color}" stroke-width="2.5"/>${[0,6,12,18,23].map(h=>`<text x="${x(h)}" y="246" text-anchor="middle" font-size="13" fill="#6a819e">${hh(h)}</text>`).join('')}</svg>`;}
+const notes=(items)=>items.map((p,i)=>`<div class="numbered-note"><span>0${i+1}</span><div><strong>${p[0]}</strong><p>${p[1]}</p></div></div>`).join('');
+function renderEnterprise(){$$('[data-industry]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.industry===industry)));let html='';if(industry==='energy'){const power=energySeries(),total=power.reduce((a,b)=>a+b,0);html=`<div class="enterprise-hero"><div><div class="eyebrow">ENERGY / SOLAR OUTPUT</div><h2>明天能发多少电，<br>提前看一条趋势。</h2><p>把天气与设备数据结合，辅助交易与运行安排。下面用合成光伏样例说明流程。</p></div><div><div class="enterprise-number">${total.toFixed(1)} <small>MWh</small></div><div class="number-caption">日发电量示意 · 逐小时功率累加</div></div></div><div class="enterprise-grid"><section class="panel"><div class="panel-head"><div><h2>示范光伏场 · 24小时功率</h2><p>改变天气情景或装机容量，观察示意曲线</p></div><span class="tag orange">合成模型</span></div><div class="business-control"><label for="capacity">装机容量 <input id="capacity" type="range" min="10" max="100" step="5" value="${capacity}"><b class="mono" id="capacity-value">${capacity} MW</b></label><div class="mini-segment" role="group" aria-label="能源天气情景"><button data-weather="mixed" aria-pressed="${energyWeather==='mixed'}">晴间多云</button><button data-weather="cloudy" aria-pressed="${energyWeather==='cloudy'}">云量增加</button></div></div><p class="mobile-chart-hint">左右滑动查看完整功率曲线。</p><div id="energy-curve">${curveSVG(power,{max:capacity})}</div><div class="chart-footer"><span>小时样例积分，非真实场站预测</span><span>情景日期 10月26日</span></div></section><aside class="panel business-notes"><h3>天气如何进入企业流程</h3>${notes([['接入天气与设备信息','实际应用还需历史功率、设备能力、检修等数据。'],['生成并检验功率预测','先比较真实功率与基线，再讨论预测是否有帮助。'],['辅助交易与运行安排','费用变化需实测，不承诺收益，也不直接称为物理节能。']])}<button class="button" id="export-inline">导出这一情景 ${icon('download')}</button></aside></div>`;}else if(industry==='rail'){const names=['西段 · 示范区间 A','中段 · 示范区间 B','东段 · 示范区间 C'],factors=[.4,1,1.35],maxes=factors.map(f=>6.2*f);html=`<div class="enterprise-hero"><div><div class="eyebrow">RAIL / ROUTE WEATHER</div><h2>沿着线路，<br>看见天气的变化。</h2><p>比较区段降水，辅助巡检与物资准备。所有线路与数值均为示意。</p></div><div><div class="enterprise-number">${maxes[railIndex].toFixed(1)} <small>mm/h</small></div><div class="number-caption">${names[railIndex]} · 最大降水强度示例</div></div></div><div class="enterprise-grid"><section class="panel"><div class="panel-head"><div><h2>示范线路 · 区段关注</h2><p>点击区段，切换关注信息</p></div><span class="tag">3个区段</span></div><div class="rail-list">${names.map((n,i)=>`<button class="rail-row" data-rail="${i}" aria-pressed="${railIndex===i}"><div><strong>${n}</strong><small>13:00—17:00 · 降水变化</small></div><div class="rain-track"><i style="width:${maxes[i]/10*100}%"></i></div><div class="rain-value">${maxes[i].toFixed(1)}<small>mm/h</small></div></button>`).join('')}</div></section><aside class="panel business-notes"><h3>${names[railIndex]} · 准备信息</h3>${notes([['关注沿线降水变化','对照现场积水、排水与设备情况，补充信息判断。'],['记录巡检与物资准备','把区段、时段和负责人放在同一份记录中。'],['由专业责任人作出决定','此演示不作停运、限速或复运判断。']])}<button class="button" id="export-inline">导出区段简报 ${icon('download')}</button></aside></div>`;}else{const values={12:{wind:4.2,visibility:10,cloud:1600,note:'关注午后天气变化，核对人员与设备准备。'},15:{wind:7.1,visibility:6,cloud:900,note:'降水变化示意，补充核对现场观测与保障资源。'},18:{wind:5.3,visibility:8,cloud:1200,note:'查看傍晚天气信息，核对后续保障任务与交接。'}}[aviationHour];html=`<div class="enterprise-hero"><div><div class="eyebrow">AVIATION / GROUND SUPPORT</div><h2>天气信息先到，<br>保障准备跟上。</h2><p>为机场保障工作整合时段天气与准备记录，飞行和放行由有权人员依规决定。</p></div><div><div class="enterprise-number">${hh(aviationHour)}</div><div class="number-caption">示范机场 · 保障关注时刻</div></div></div><div class="enterprise-grid"><section class="panel"><div class="panel-head"><div><h2>示范机场 · 保障天气</h2><p>合成数据 · 非METAR或TAF · 不作为飞行依据</p></div><div class="mini-segment" role="group" aria-label="航空关注时刻">${[12,15,18].map(h=>`<button data-aviation="${h}" aria-pressed="${aviationHour===h}">${hh(h)}</button>`).join('')}</div></div><div class="aviation-stats"><div><span>地面风速</span><strong>${values.wind}<small> m/s</small></strong></div><div><span>能见度示例</span><strong>${values.visibility}<small> km</small></strong></div><div><span>云底高度示例</span><strong>${values.cloud}<small> m</small></strong></div></div><div class="aviation-band">${icon('info')}<span>${values.note}</span></div></section><aside class="panel business-notes"><h3>关注保障工作衔接</h3>${notes([['人员与设备准备','将天气变化与人员班次、设备准备信息并列查看。'],['核对正式业务资料','实际应用需合法授权资料、相关资格与系统接入。'],['保留决定与责任边界','页面不给出适航、放行或机场开放结论。']])}<button class="button" id="export-inline">导出保障简报 ${icon('download')}</button></aside></div>`;}$('enterprise-content').innerHTML=html+'<div class="wide-note">企业服务概念演示：尚未接入真实客户系统，不能据此认定资质、预测质量或降本效果。实际采购、授权、交付和验收需另行核实。</div>';$('export-inline').addEventListener('click',exportEnterprise);$$('[data-weather]').forEach(b=>b.addEventListener('click',()=>{energyWeather=b.dataset.weather;renderEnterprise();}));$('capacity')?.addEventListener('input',e=>{capacity=+e.target.value;$('capacity-value').textContent=capacity+' MW';const power=energySeries();$('energy-curve').innerHTML=curveSVG(power,{max:capacity});document.querySelector('.enterprise-number').innerHTML=power.reduce((a,b)=>a+b,0).toFixed(1)+' <small>MWh</small>';});$$('[data-rail]').forEach(b=>b.addEventListener('click',()=>{railIndex=+b.dataset.rail;renderEnterprise();}));$$('[data-aviation]').forEach(b=>b.addEventListener('click',()=>{aviationHour=+b.dataset.aviation;renderEnterprise();}));}
+$$('[data-industry]').forEach(b=>b.addEventListener('click',()=>{industry=b.dataset.industry;renderEnterprise();}));
+function download(text,name){const blob=new Blob(['\ufeff'+text],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('已生成本地简报，请查看浏览器下载。');}
+$('export-workspace').addEventListener('click',exportWorkspace);
+function exportEnterprise(){const labels={energy:'能源',rail:'轨交',aviation:'航空'};const context=industry==='energy'?`装机容量示例：${capacity} MW\n天气情景：${energyWeather==='mixed'?'晴间多云':'云量增加'}\n日发电量示意：${energySeries().reduce((a,b)=>a+b,0).toFixed(1)} MWh\n逐小时功率（MW）：\n${energySeries().map((v,i)=>`${hh(i)}\t${v.toFixed(2)}`).join('\n')}`:industry==='rail'?`关注区段：${['西段A','中段B','东段C'][railIndex]}\n最大降水强度示例：${(6.2*[.4,1,1.35][railIndex]).toFixed(1)} mm/h\n关注时段：13:00—17:00\n仅辅助巡检与物资准备，不作停运或限速判断。`:`关注时刻：${hh(aviationHour)}\n${$('enterprise-content').innerText}\n不作为飞行、适航或放行依据。`;download(`skysight ${labels[industry]}行业简报\n情景日期：2026年10月26日\n全部数据、场站和结果均为合成示例，尚未接入真实客户系统。\n\n${context}\n\n不证明真实预测质量、资质、客户收益或商业可行性。`,'skysight'+labels[industry]+'行业简报.txt');}
+$('export-enterprise').addEventListener('click',exportEnterprise);
+function about(){$('storage-status').textContent=storageOK?'当前浏览器可保存本地演示状态。清除浏览器数据可能移除这些记录。':'当前浏览器不允许本地保存，离开页面后记录可能丢失。';openDialog('about-dialog');}
+$('about-button').addEventListener('click',about);$('footer-about').addEventListener('click',about);$('reset-demo').addEventListener('click',()=>{state=defaults();taskChecks={construction:[],agriculture:[],livestock:[]};try{localStorage.removeItem(KEY+'-prep');}catch(e){}capacity=30;energyWeather='mixed';railIndex=0;aviationHour=12;persist();renderWorkspace();renderReminders();renderEnterprise();closeDialog($('about-dialog'));navigate('workspace');toast('已重置本机演示，其他网站数据不受影响。');});
+populateControls();renderWorkspace();renderReminders();const initial=location.hash.slice(1);navigate(['workspace','reminders','enterprise'].includes(initial)?initial:'workspace');
+})();
+
+</script>
+</body>
+</html>
